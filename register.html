@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="ral.css">
+  <title>Registration</title>
+</head>
+<body>
+  <div class="logo">
+    <a href="index.html">
+      <img src="Onegame.png" alt="Logo" draggable="false" oncontextmenu="return false;">
+    </a>
+  </div>
+  <div class="container">
+    <form method="post" action="http://localhost:3000/register.html">
+      <label for="username"><strong>Username</strong></label>
+      <input type="text" id="username" name="username" required>
+      <label for="email"><strong>Email</strong></label>
+      <input type="email" id="email" name="email" required>
+      <label for="password"><strong>Password</strong></label>
+      <input type="password" id="password" name="password" required>
+      <input type="submit" value="Register">
+        <div class="acc">
+          <p><small>Already have an account? <a href="login.html" class="link-style">Login</a></small></p>
+        </div>
+        <div class="tos">
+          <p><small>By signing up, you agree to the <a href="tos.html" class="link-style">Terms of Service</a> and <a href="pp.html" class="link-style">Privacy Policy</a>, including Cookie Use.</small></p>
+        </div>
+    </form>
+  </div>
+</body>
+</html>
+

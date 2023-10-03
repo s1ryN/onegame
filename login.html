@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="ral.css">
+    <title>Login</title>
+</head>
+<body>
+    <div class="logo">
+        <a href="index.html">
+          <img src="Onegame.png" alt="Logo" draggable="false" oncontextmenu="return false;">
+        </a>
+    </div>
+    <div class="container">
+        <form action="http://localhost:3000/login" method="post">
+            <label for="username"><strong>Username</strong></label>
+            <input type="text" id="username" name="username" required>
+            <label for="password"><strong>Password</strong></label>
+            <input type="password" id="password" name="password" required>
+            <input type="submit" value="Login">
+                <div class="acc">
+                    <p><small>Don't have an account? <a href="register.html" class="link-style">Sign up</a> </small></p>
+                </div>
+        </form>
+    </div>
+</body>
+</html>
+ 
+
