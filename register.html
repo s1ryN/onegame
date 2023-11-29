@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="ral.css">
+  <title>OneGame | Registration</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+  <div class="logo">
+    <a href="index.html" class="linkage">
+      <img src="images/Onegame.png" alt="Logo" class="image-container" draggable="false" oncontextmenu="return true;">
+    </a>
+  </div>
+  <div class="container">
+    <div class="form">
+      <form method="post" id="form" action="http://localhost:3000/register.html">
+      <label for="username"><strong>Username</strong></label>
+      <input type="text" id="username" name="username" required autofocus>
+      <label for="email"><strong>Email</strong></label>
+      <input type="email" id="email" name="email" required placeholder="ex123@example.com">
+      <label for="password"><strong>Password</strong></label>
+      <input type="password" id="password" name="password" required placeholder="Atleast 6 symbols">
+      <div class="g-recaptcha" data-sitekey="6Le25nIoAAAAAFyEkChVXQoMoIR_bT9MRfl1CND6"></div>
+      <input type="submit" value="Register" data-value="Register">
+    </div>
+      <div class="acc">
+          <p><small>Already have an account? <a href="login.html" class="link-style">Login</a></small></p>
+      </div>
+      <div class="tos">
+          <p><small>By signing up, you agree to the <a href="tos.html" class="link-style">Terms of Service</a> and <a href="pp.html" class="link-style">Privacy Policy</a>, including Cookie Use.</small></p>
+      </div>
+    </form>
+  </div>
+  <footer class="footer">
+    <small><a href="about.html" class="link-style">About</a></small>
+    <small><a href="tos.html" class="link-style">Terms of Service</a></small>
+    <small><a href="pp.html" class="link-style">Privacy Policy</a></small>
+    <small><a href="advertising.html" class="link-style">Advertising</a></small>
+    <small><a href="support.html" class="link-style">Support</a></small>
+    <small><a>© 2023 OneGame.gg</a></small>
+  </footer>
+</div>
+
+
+
+
+</body>
+</html>
+

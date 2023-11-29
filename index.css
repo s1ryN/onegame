@@ -1,0 +1,377 @@
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Space Mono", monospace;
+    margin: 0;
+    padding: 0;
+    background: black;
+    height: 100vh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: black;
+    border: 1px solid #2a2a2a;
+}
+
+.logo {
+    height: 40px;
+    margin-left: 10px;
+}
+
+.logo2 {
+    height: 50px;
+}
+
+.logo3 {
+    height: 30px;
+}
+
+.buttons button {
+    margin-left: 20px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: none;
+    color: #2a2a2a;
+    background-color: white;
+    cursor: pointer;
+    font-family: "Space Mono", monospace;
+}
+
+.about-us {
+    flex-grow: 0;
+}
+
+.logo-separator {
+    display: flex;
+    align-items: center;
+}
+
+.logo-separator hr {
+    flex-grow: 2; 
+    border-color: #ffffff; 
+    margin-right: 20px; 
+    margin-left: 20px;
+}
+
+.logo-separator img {
+    height: 30px;
+}
+
+.answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+}
+
+.logo2-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-top: 400px;
+}
+
+.logo3-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; 
+    margin-top: 10px; 
+    margin-bottom: 500px;
+}
+
+.left-half {
+    flex-basis: 50%;
+    margin-left: 400px;
+    color: white;
+    position: right;
+    text-align: right;
+}
+
+.left-half p {
+    margin-left: 20px; 
+}
+
+.left-half h2 {
+    margin-left: 20px;
+    margin-top: 50px;
+    align-items: left;
+}
+
+.right-half {
+    flex-basis: 50%;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    background-color: black; 
+    color: #ffffff;
+    margin-right: 540px;
+}
+
+.split-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: black;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.split-section.appear {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.question-mark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative; 
+    color: white;
+    font-family: "Space Mono", monospace;
+}
+
+.question-mark h1 {
+    font-size: 100px;
+    position: relative; 
+}
+
+.question-mark h1::after {
+    content: '';
+    display: inline-block;
+    width: 2px;
+    height: 20px;
+    background-color: #ffffff;
+    animation: blink 1s steps(1, start) infinite;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+@keyframes blink {
+    0%, 100% {
+        height: 0;
+        opacity: 0;
+    }
+    50% {
+        height: 100px;
+        opacity: 1;
+    }
+}
+
+.section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: black;
+    opacity: 1;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s;
+    margin-bottom: 100px;
+}
+
+.section.appear {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.wrapper {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    height: 400px;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: start;
+}
+
+.card {
+    width: 80px;
+    border-radius: .75rem;
+    background-size: cover;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 2rem;
+    margin: 0 10px;
+    display: flex;
+    align-items: flex-end;
+    transition: .6s cubic-bezier(.28,-0.03,0,.99);
+    box-shadow: 0px 10px 30px -5px rgba(0,0,0,0.8);
+}
+
+.card > .row {
+    color: white;
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.card > .row > .icon {
+    background: #223;
+    color: white;
+    border-radius: 50%;
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 15px;
+}
+
+.card > .row > .description {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    overflow: hidden;
+    height: 80px;
+    width: 520px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition-delay: .3s;
+    transition: all .3s ease;
+}
+
+.description p {
+    color: white;
+    margin: 0;
+}
+
+.description h4 {
+    text-transform: uppercase;
+    margin: 0;
+}
+
+input {
+    display: none;
+}
+
+input:checked + label {
+    width: 600px;
+}
+
+input:checked + label .description {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+.card[for="c1"] {
+    background-image: url('images/cs2.jfif');
+}
+.card[for="c2"] {
+    background-image: url('images/teammates.jpg');
+}
+.card[for="c3"] {
+    background-image: url('images/gaming.jpg');
+}
+.card[for="c4"] {
+    background-image: url('images/comms.jpg');
+}
+
+.heart-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#heart {
+    width: 100px;
+    animation: heartbeat 1s infinite ease-in-out;
+    filter: brightness(0) invert(1);
+}
+
+@keyframes heartbeat {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.section2text {
+    color: white;
+    text-align: center;
+}
+
+.registerbutton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.registerbutton button {
+    margin-top: 20px;
+    margin-bottom: 200px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: none;
+    color: #2a2a2a;
+    background-color: white;
+    cursor: pointer;
+    font-family: "Space Mono", monospace;
+    font-size: 15px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); 
+    background-color: #333; 
+    color: #fff;
+    padding: 20px;
+}
+
+.footer-item {
+    padding: 10px;
+    text-align: center;
+}
+
+.footer-item h2 {
+    font-size: 1.5rem;
+}
+
+.footer-item ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-item ul li {
+    margin: 5px 0;
+}
+
+.footer-item a {
+    text-decoration: none;
+    color: #fff;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+}
+
+.footer-logo img {
+    max-width: 200px;
+    margin-left: 200px;
+}
+
+.footer-item {
+    text-decoration: none;
+    font-size: 20px;
+}
+
+@media screen {
+    
+}
+

@@ -1,0 +1,36 @@
+<div class="faq">
+    <h2>Q&A</h2>
+    <div class="question">
+        <h3 class="question-title">What is OneGame.gg?</h3>
+        <p class="answer open">OneGame.gg is a social network for gamers and for finding new teammates to play with. It is completely free.</p>
+    </div>
+    <div class="question">
+        <h3 class="question-title">How can I find new teammates?</h3>
+        <p class="answer open">It is very simple. Just register, verify your email, login and click "Find teammates".</p>
+    </div>
+</div>
+.faq {
+    max-width: 600px;
+    margin: 0px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let questionTitles = document.querySelectorAll(".question-title");
+
+        questionTitles.forEach((title) => {
+            title.addEventListener("click", function() {
+                let answer = this.nextElementSibling;
+                if (answer.style.maxHeight) {
+                    answer.style.maxHeight = null;
+                } else {
+                    answer.style.maxHeight = answer.scrollHeight + "px";
+                }
+            });
+        });
+    });
+</script>

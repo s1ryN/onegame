@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="ral.css">
+    <title>OneGame | Login</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+    <div class="logo">
+        <a href="index.html">
+          <img src="images/Onegame.png" alt="Logo" draggable="false">
+        </a>
+    </div>
+    <div class="container">
+        <form action="http://localhost:3000/login" method="post">
+            <label for="username"><strong>Username</strong></label>
+            <input type="text" id="username" name="username" required autofocus>
+            <label for="password"><strong>Password</strong></label>
+            <input type="password" id="password" name="password" required>
+            <div class="g-recaptcha" data-sitekey="6Le25nIoAAAAAFyEkChVXQoMoIR_bT9MRfl1CND6"></div>
+            <input type="submit" value="Login">            
+                <div class="acc">
+                    <p><small>Don't have an account? <a href="register.html" class="link-style">Sign up</a> </small></p>
+                </div>
+        </form>
+    </div>
+    <footer class="footer">
+        <small><a href="about.html" class="link-style">About</a></small>
+        <small><a href="tos.html" class="link-style">Terms of Service</a></small>
+        <small><a href="pp.html" class="link-style">Privacy Policy</a></small>
+        <small><a href="pp.html" class="link-style">Advertising</a></small>
+        <small><a href="support.html" class="link-style">Support</a></small>
+        <small><a>© 2023 OneGame.gg</a></small>
+      </footer>
+</body>
+</html>
+ 

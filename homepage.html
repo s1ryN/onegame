@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Základní nastavení na UTF-8, připojení homepage.css a fontu Space Mono, nastavení title. -->
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="homepage.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap">
+    <title>OneGame | Homepage</title>
+</head>
+<body>
+    <!-- Header s logem stránky na proklik na homepage.html -->
+    <div class="header">
+        <a href="homepage.html">
+            <img src="images/Onegame.png" alt="Logo" class="logo" draggable="false">
+        </a>
+    </div>
+
+    <!-- Formulář pro postování -->
+    <div id="post-form">
+        <form action="/post" method="post" id="post" enctype="multipart/form-data">
+            <!-- Textový obsah postu -->
+            <textarea name="content" id="post-text" placeholder="What's on your mind?" required></textarea>
+            <!-- Mediální obsah postu -->
+            <input type="file" name="media_url" id="post-image" accept="image/*, video/*">
+            <!-- Ikonka pro vložení mediálního obsahu -->
+            <label for="post-image" id="post-image-label" class="image-icon">Add Image</label>
+            <!-- Tlačítko pro zveřejnění příspěvku -->
+            <button type="submit">Post</button>
+        </form>
+    </div>
+
+    <!-- Část pro zobrazení postů -->
+    <div id="posts"></div>
+
+    <!-- Skript pro zobrazení postů a jejich obsahu a jejich načtení z databáze -->
+    <script>
+        let page = 1;
+        const postsContainer = document.getElementById('posts');
+        
+        //Funkce pro prodloužení stránky a načtení více postů při scrollování na homepage
+        function fetchPosts() {
+            fetch(`/api/posts?page=${page}`)
+                .then(response => response.json())
+                .then(posts => {
+                    if (posts.length > 0) {
+                        renderPosts(posts);
+                        page++;
+                    }
+                })
+                //Konzolová chybová zpráva v případě problému při načítání postů
+                .catch(error => console.error('Error fetching posts:', error));
+        }
+
+        //Funkce pro samotné načtení postů
+        function renderPosts(posts) {
+            if (posts && posts.length > 0) {
+                posts.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.classList.add('post');
+
+                    postElement.innerHTML = `
+                        <p><strong>${post.username}</strong></p>
+                        <p>${post.content}</p>
+                        ${post.media_url ? renderMedia(post.media_url) : ''}
+                        <p><em>Posted on ${post.post_time}</em></p>
+                        <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
+                        <button class="like-button" data-post-id="${post.id}">Like</button>
+                    `;
+
+                    postsContainer.appendChild(postElement);
+                });
+
+                //Like tlačítko pro likenutí postu
+                document.querySelectorAll('.like-button').forEach(button => {
+                button.addEventListener('click', () => {
+                const postId = button.dataset.postId;
+
+                fetch('/like', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ postId }),
+                })
+                .then(response => {
+                    if (response.ok) {
+                        const likeCountElement = document.getElementById(`like-count-${postId}`);
+                        likeCountElement.textContent = parseInt(likeCountElement.textContent) + 1;
+                    } else {
+                        console.error('Error liking post:', response.statusText);
+                    }
+                })
+                .catch(error => console.error('Error liking post:', error));
+                });
+                });
+            }
+        }
+
+        //Funkce pro načtení médií
+        function renderMedia(mediaUrl) {
+            const baseMediaUrl = '/uploads/'; // Složka ze které se načítají média
+            const fullMediaUrl = `${baseMediaUrl}${mediaUrl}`;
+
+            const fileExtension = mediaUrl.split('.').pop().toLowerCase();
+            if (fileExtension === 'mp4' || fileExtension === 'webm') {
+                //
+                return `<video controls><source src="${fullMediaUrl}" type="video/mp4"></video>`;
+            } else if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif') {
+                // If it's an image
+                return `<img src="${fullMediaUrl}" alt="Post Media">`;
+            } else {
+                // Unsupported file type
+                return 'Unsupported media type';
+            }
+        }
+
+        // Function to check if the user has scrolled to the bottom of the page
+        function isAtBottom() {
+            return window.innerHeight + window.scrollY >= document.body.offsetHeight;
+        }
+
+        // Event listener for scrolling
+        window.addEventListener('scroll', () => {
+            if (isAtBottom()) {
+                fetchPosts(); // Fetch more posts when the user reaches the bottom
+            }
+        });
+
+        // Initial fetch when the page loads
+        fetchPosts();
+
+        function handleLike(postId) {
+            fetch('/like', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ postId: postId }),
+            })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Like successful');
+                        // You may want to update the UI here, e.g., increment like count or change button appearance
+                    } else {
+                        console.error('Error liking post:', response.statusText);
+                    }
+                })
+                .catch(error => console.error('Error liking post:', error));
+        }
+    </script>
+</body>
+</html>
