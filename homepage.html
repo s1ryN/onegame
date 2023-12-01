@@ -6,6 +6,22 @@
     <link rel="stylesheet" type="text/css" href="homepage.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap">
     <title>OneGame | Homepage</title>
+
+    <script>
+        // Move the function to the client-side script
+    function isYouTubeLink(text) {
+        const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+        const match = text.match(youtubeRegex);
+        return match ? match[0] : null;
+    }
+
+    // Function for extracting YouTube video ID from the provided YouTube link
+    function getYouTubeVideoId(url) {
+        const match = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        return match ? match[1] : null;
+    }
+    </script>
+    
 </head>
 <body>
     <!-- Header s logem stránky na proklik na homepage.html -->
@@ -34,9 +50,21 @@
 
     <!-- Skript pro zobrazení postů a jejich obsahu a jejich načtení z databáze -->
     <script>
+    function isYouTubeLink(text) {
+        const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+        const match = text.match(youtubeRegex);
+        return match ? match[0] : null;
+    }
+
+    // Function for extracting YouTube video ID from the provided YouTube link
+    function getYouTubeVideoId(url) {
+        const match = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        return match ? match[1] : null;
+    }
+
         let page = 1;
         const postsContainer = document.getElementById('posts');
-        
+
         //Funkce pro prodloužení stránky a načtení více postů při scrollování na homepage
         function fetchPosts() {
             fetch(`/api/posts?page=${page}`)
@@ -72,26 +100,26 @@
 
                 //Like tlačítko pro likenutí postu
                 document.querySelectorAll('.like-button').forEach(button => {
-                button.addEventListener('click', () => {
-                const postId = button.dataset.postId;
+                    button.addEventListener('click', () => {
+                        const postId = button.dataset.postId;
 
-                fetch('/like', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ postId }),
-                })
-                .then(response => {
-                    if (response.ok) {
-                        const likeCountElement = document.getElementById(`like-count-${postId}`);
-                        likeCountElement.textContent = parseInt(likeCountElement.textContent) + 1;
-                    } else {
-                        console.error('Error liking post:', response.statusText);
-                    }
-                })
-                .catch(error => console.error('Error liking post:', error));
-                });
+                        fetch('/like', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ postId }),
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                const likeCountElement = document.getElementById(`like-count-${postId}`);
+                                likeCountElement.textContent = parseInt(likeCountElement.textContent) + 1;
+                            } else {
+                                console.error('Error liking post:', response.statusText);
+                            }
+                        })
+                        .catch(error => console.error('Error liking post:', error));
+                    });
                 });
             }
         }
@@ -108,6 +136,10 @@
             } else if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif') {
                 // If it's an image
                 return `<img src="${fullMediaUrl}" alt="Post Media">`;
+            } else if (isYouTubeLink(mediaUrl)) {
+                // If it's a YouTube link
+                const videoId = getYouTubeVideoId(mediaUrl);
+                return `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
             } else {
                 // Unsupported file type
                 return 'Unsupported media type';

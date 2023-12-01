@@ -21,6 +21,7 @@ const recaptcha = new Recaptcha(
 app.use(flash());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(express.static(__dirname));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -134,19 +135,33 @@ app.post('/post', uploadWithStorage.single('media_url'), async (req, res) => {
   // Check if the user is logged in
   if (!req.session.userId) {
     console.log('Current session user ID:', req.session.userId);
-    console.log('POST ERROR INBOUND, USER ID IS FUCKED');
+    console.log('POST ERROR INBOUND, USER ID IS INCORRECT');
     return res.redirect('/login.html');
+  }
+
+  function isYouTubeLink(text) {
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = text.match(youtubeRegex);
+    return match ? match[0] : null;
   }
 
   // Fetch user information from the session
   const userId = req.session.userId;
 
   // Create postData object with the correct user_id
-  const postData = {
+  let postData = {
     user_id: userId,
     content: req.body.content,
-    media_url: req.file ? req.file.filename : null, // Check if a file was uploaded
+    media_url: null,
   };
+
+  // Check if the content is a YouTube link
+  if (req.body.content && isYouTubeLink(req.body.content)) {
+    postData.content = req.body.content;
+    postData.media_url = req.body.content; // Save YouTube link directly
+  } else if (req.file) {
+    postData.media_url = req.file.filename; // Save uploaded file
+  }
 
   // Insert post into the database
   con.query('INSERT INTO posts SET ?', postData, function (error, results, fields) {
@@ -160,6 +175,7 @@ app.post('/post', uploadWithStorage.single('media_url'), async (req, res) => {
     }
   });
 });
+
 
 app.get('/homepage', async (req, res) => {
   try {
@@ -244,6 +260,7 @@ app.post('/like', (req, res) => {
 
   console.log('postId:', postId);
   console.log('userId:', userId);
+  
 
   // Check if the user has already liked the post
   con.query('SELECT * FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (error, results) => {
