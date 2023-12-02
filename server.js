@@ -79,7 +79,6 @@ app.post('/register.html', [
       }
     });
   } else {
-    // CAPTCHA verification failed
     req.flash('error', 'CAPTCHA verification failed.');
     return res.redirect('/register.html');
   }
