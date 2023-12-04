@@ -99,3 +99,18 @@ button {
 #post-image-label:hover {
     color: #fff;
 }
+
+.post-form textarea {
+    resize: none;
+}
+
+.post-form .add-image::before {
+    content: "\f030"; /* This is the Unicode for the Font Awesome camera icon */
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    color: white;
+}
+
+.post-form .add-image.media-exists::before {
+    color: rgb(28, 105, 194);
+}

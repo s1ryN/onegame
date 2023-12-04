@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="homepage.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap">
+    <script src="https://kit.fontawesome.com/b767968911.js" crossorigin="anonymous"></script>
     <title>OneGame | Homepage</title>
 
     <script>
@@ -79,73 +80,156 @@
                 .catch(error => console.error('Error fetching posts:', error));
         }
 
+    
+
         //Funkce pro samotné načtení postů
         function renderPosts(posts) {
-            if (posts && posts.length > 0) {
-                posts.forEach(post => {
-                    const postElement = document.createElement('div');
-                    postElement.classList.add('post');
+    if (posts && posts.length > 0) {
+        posts.forEach(post => {
+            const postElement = document.createElement('div');
+            postElement.classList.add('post');
 
-                    postElement.innerHTML = `
-                        <p><strong>${post.username}</strong></p>
-                        <p>${post.content}</p>
-                        ${post.media_url ? renderMedia(post.media_url) : ''}
-                        <p><em>Posted on ${post.post_time}</em></p>
-                        <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
-                        <button class="like-button" data-post-id="${post.id}">Like</button>
-                    `;
+            postElement.innerHTML = `
+                <p><strong>${post.username}</strong></p>
+                <p>${post.content}</p>
+                ${post.media_url ? renderMedia(post.media_url) : ''}
+                <p><em>Posted on ${post.post_time}</em></p>
+                <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
+                <button class="like-button" data-post-id="${post.id}"><i class="fa-regular fa-heart"></i> Like</button>
+            `;
 
-                    postsContainer.appendChild(postElement);
-                });
+            postsContainer.appendChild(postElement);
+        });
 
-                //Like tlačítko pro likenutí postu
-                document.querySelectorAll('.like-button').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const postId = button.dataset.postId;
 
-                        fetch('/like', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ postId }),
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                const likeCountElement = document.getElementById(`like-count-${postId}`);
-                                likeCountElement.textContent = parseInt(likeCountElement.textContent) + 1;
-                            } else {
-                                console.error('Error liking post:', response.statusText);
-                            }
-                        })
-                        .catch(error => console.error('Error liking post:', error));
-                    });
-                });
-            }
-        }
+        // Like button for liking a post
+        document.querySelectorAll('.like-button').forEach(button => {
+    // Remove all previous event listeners
+    const newButton = button.cloneNode(true);
+    button.parentNode.replaceChild(newButton, button);
 
-        //Funkce pro načtení médií
-        function renderMedia(mediaUrl) {
-            const baseMediaUrl = '/uploads/'; // Složka ze které se načítají média
-            const fullMediaUrl = `${baseMediaUrl}${mediaUrl}`;
+    newButton.addEventListener('click', function() {
+        this.disabled = true;
 
-            const fileExtension = mediaUrl.split('.').pop().toLowerCase();
-            if (fileExtension === 'mp4' || fileExtension === 'webm') {
-                //
-                return `<video controls><source src="${fullMediaUrl}" type="video/mp4"></video>`;
-            } else if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif') {
-                // If it's an image
-                return `<img src="${fullMediaUrl}" alt="Post Media">`;
-            } else if (isYouTubeLink(mediaUrl)) {
-                // If it's a YouTube link
-                const videoId = getYouTubeVideoId(mediaUrl);
-                return `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+        const postId = newButton.dataset.postId;
+        const isRemoveLike = this.dataset.liked === 'true';
+
+        fetch(isRemoveLike ? '/unlike' : '/like', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ postId }),
+        })
+        .then(response => {
+            if (response.ok) {
+                const likeCountElement = document.getElementById(`like-count-${postId}`);
+                likeCountElement.textContent = parseInt(likeCountElement.textContent) + (isRemoveLike ? -1 : 1);
+                this.dataset.liked = isRemoveLike ? 'false' : 'true';
+                this.innerHTML = isRemoveLike ? '<i class="fa-regular fa-heart"></i> Like' : '<i class="fa-solid fa-heart"></i> Like';
             } else {
-                // Unsupported file type
-                return 'Unsupported media type';
+                console.error('Error updating like:', response.statusText);
             }
-        }
+            this.disabled = false;
+        })
+        .catch(error => {
+            console.error('Error updating like:', error);
+            this.disabled = false;
+        });
+    });
+});
+    }
+}
 
+function likePost(button) {
+    const postId = button.dataset.postId;
+
+    fetch('/like', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ postId }),
+    })
+    .then(response => {
+        if (response.ok) {
+            const likeCountElement = document.getElementById(`like-count-${postId}`);
+            likeCountElement.textContent = parseInt(likeCountElement.textContent) + 1;
+            button.textContent = 'Remove Like';
+        } else {
+            console.error('Error liking post:', response.statusText);
+        }
+        button.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error liking post:', error);
+        button.disabled = false;
+    });
+}
+
+function unlikePost(button) {
+    const postId = button.dataset.postId;
+
+    fetch('/unlike', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ postId }),
+    })
+    .then(response => {
+        if (response.ok) {
+            const likeCountElement = document.getElementById(`like-count-${postId}`);
+            likeCountElement.textContent = parseInt(likeCountElement.textContent) - 1;
+            button.textContent = 'Like';
+        } else {
+            console.error('Error unliking post:', response.statusText);
+        }
+        button.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error unliking post:', error);
+        button.disabled = false;
+    });
+}
+
+document.querySelectorAll('.like-button').forEach(button => {
+    // Remove all previous event listeners
+    const newButton = button.cloneNode(true);
+    button.parentNode.replaceChild(newButton, button);
+
+    newButton.addEventListener('click', function() {
+        this.disabled = true;
+
+        if (this.textContent === 'Remove Like') {
+            unlikePost(this);
+        } else {
+            likePost(this);
+        }
+    });
+});
+
+// Function for loading media
+function renderMedia(mediaUrl) {
+    const baseMediaUrl = '/uploads/'; // Folder from which media is loaded
+    const fullMediaUrl = `${baseMediaUrl}${mediaUrl}`;
+
+    const fileExtension = mediaUrl.split('.').pop().toLowerCase();
+    if (fileExtension === 'mp4' || fileExtension === 'webm') {
+        //
+        return `<video controls><source src="${fullMediaUrl}" type="video/mp4"></video>`;
+    } else if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif') {
+        // If it's an image
+        return `<img src="${fullMediaUrl}" alt="Post Media">`;
+    } else if (isYouTubeLink(mediaUrl)) {
+        // If it's a YouTube link
+        const videoId = getYouTubeVideoId(mediaUrl);
+        return `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+    } else {
+        // Unsupported file type
+        return 'Unsupported media type';
+    }
+}
         // Function to check if the user has scrolled to the bottom of the page
         function isAtBottom() {
             return window.innerHeight + window.scrollY >= document.body.offsetHeight;

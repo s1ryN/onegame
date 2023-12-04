@@ -253,13 +253,21 @@ async function getPostsFromDatabase(page) {
   });
 }
 
+let isLiking = {};
+
 app.post('/like', (req, res) => {
   const postId = req.body.postId;
   const userId = req.session.userId;
 
   console.log('postId:', postId);
   console.log('userId:', userId);
-  
+
+  // Check if the user is already liking the post
+  if (isLiking[userId + '-' + postId]) {
+    return res.status(400).json({ error: 'Already processing like' });
+  }
+
+  isLiking[userId + '-' + postId] = true;
 
   // Check if the user has already liked the post
   con.query('SELECT * FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (error, results) => {
@@ -290,6 +298,58 @@ app.post('/like', (req, res) => {
         res.status(400).json({ error: 'User has already liked the post' });
       }
     }
+
+    // Release the lock
+    delete isLiking[userId + '-' + postId];
+  });
+});
+
+
+let isUnliking = {};
+
+app.post('/unlike', (req, res) => {
+  const postId = req.body.postId;
+  const userId = req.session.userId;
+
+  // Check if the user is already unliking the post
+  if (isUnliking[userId + '-' + postId]) {
+    return res.status(400).json({ error: 'Already processing unlike' });
+  }
+
+  isUnliking[userId + '-' + postId] = true;
+
+  // Check if the user has already liked the post
+  con.query('SELECT * FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (error, results) => {
+    if (error) {
+      console.error('Error checking existing like:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      if (results.length > 0) {
+        // If the user has liked the post, proceed to unlike
+        con.query('UPDATE posts SET like_count = like_count - 1 WHERE id = ?', [postId], (updateError) => {
+          if (updateError) {
+            console.error('Error updating like count:', updateError);
+            res.status(500).json({ error: 'Internal Server Error' });
+          } else {
+            // Delete the record from the reactions table
+            con.query('DELETE FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (deleteError) => {
+              if (deleteError) {
+                console.error('Error deleting like record:', deleteError);
+                res.status(500).json({ error: 'Internal Server Error' });
+              } else {
+                res.sendStatus(200); // Unlike successful
+              }
+            });
+          }
+        });
+      } else {
+        // User hasn't liked the post, you can handle this case as needed
+        res.status(400).json({ error: 'User has not liked the post' });
+      }
+    }
+
+    // Release the lock
+    delete isUnliking[userId + '-' + postId];
   });
 });
 
