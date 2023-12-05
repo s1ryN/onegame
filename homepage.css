@@ -48,17 +48,6 @@ body {
     width: 100%;
 }
 
-button {
-    background-color: #4267B2;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    width: 100%;
-    display: block;
-    margin: 0 auto;
-}
-
 #posts {
     margin: 20px auto;
 }
@@ -100,17 +89,52 @@ button {
     color: #fff;
 }
 
-.post-form textarea {
+#post-form textarea {
     resize: none;
 }
 
-.post-form .add-image::before {
-    content: "\f030"; /* This is the Unicode for the Font Awesome camera icon */
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
+.like-button {
+    background-color: black; 
+    border: none;
     color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition: background-color 0.5s ease;
 }
 
-.post-form .add-image.media-exists::before {
-    color: rgb(28, 105, 194);
+/* CSS for the post button */
+#post-form button[type="submit"] {
+    background-color: #4267B2; 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+.like-button.liked {
+    background-color: #4267B2; /* Or any color you prefer */
+}
+
+.comment-button {
+    background-color: black; 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition: background-color 0.5s ease;
 }

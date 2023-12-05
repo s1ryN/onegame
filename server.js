@@ -259,6 +259,10 @@ app.post('/like', (req, res) => {
   const postId = req.body.postId;
   const userId = req.session.userId;
 
+  if (!req.session.userId) {
+    return res.redirect('/login.html');
+  }
+
   console.log('postId:', postId);
   console.log('userId:', userId);
 
@@ -311,6 +315,10 @@ app.post('/unlike', (req, res) => {
   const postId = req.body.postId;
   const userId = req.session.userId;
 
+  if (!req.session.userId) {
+    return res.redirect('/login.html');
+  }
+
   // Check if the user is already unliking the post
   if (isUnliking[userId + '-' + postId]) {
     return res.status(400).json({ error: 'Already processing unlike' });
@@ -350,6 +358,38 @@ app.post('/unlike', (req, res) => {
 
     // Release the lock
     delete isUnliking[userId + '-' + postId];
+  });
+});
+
+app.post('/comment', async (req, res) => {
+  // Check if the user is logged in
+  if (!req.session.userId) {
+    console.log('Current session user ID:', req.session.userId);
+    console.log('POST ERROR INBOUND, USER ID IS INCORRECT');
+    return res.redirect('/login.html');
+  }
+  // Fetch user information from the session
+  const userId = req.session.userId;
+  const postId = req.body.postId;
+  const comment = req.body.comment;
+
+  // Create postData object with the correct user_id
+  let postData = {
+    user_id: userId,
+    post_id: postId,
+    comment: comment,
+  };
+
+  // Insert post into the database
+  con.query('INSERT INTO comments SET ?', postData, function (error, results, fields) {
+    if (error) {
+      console.error('SQL Error: ', error);
+      req.flash('error', 'Error occurred during comment submission.');
+      return res.redirect('/homepage.html');
+    } else {
+      req.flash('success', 'Comment submitted successfully');
+      return res.redirect('/homepage.html');
+    }
   });
 });
 

@@ -40,7 +40,7 @@
             <!-- Mediální obsah postu -->
             <input type="file" name="media_url" id="post-image" accept="image/*, video/*">
             <!-- Ikonka pro vložení mediálního obsahu -->
-            <label for="post-image" id="post-image-label" class="image-icon">Add Image</label>
+            <label for="post-image" id="post-image-label" class="image-icon"><i class="fa-solid fa-images"></i>Add Image</label>
             <!-- Tlačítko pro zveřejnění příspěvku -->
             <button type="submit">Post</button>
         </form>
@@ -51,6 +51,18 @@
 
     <!-- Skript pro zobrazení postů a jejich obsahu a jejich načtení z databáze -->
     <script>
+
+    function formatPostTime(postTime) {
+    const date = new Date(postTime);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based in JavaScript
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
     function isYouTubeLink(text) {
         const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
         const match = text.match(youtubeRegex);
@@ -61,6 +73,18 @@
     function getYouTubeVideoId(url) {
         const match = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
         return match ? match[1] : null;
+    }
+
+    function displaycomments() {
+        const comments = document.getElementById('comments');
+        comments.style.display = 'block';
+        //limit comment displayed when comments button clicked
+        const comment = document.getElementsByClassName('comment');
+        for (let i = 0; i < comment.length; i++) {
+            if (i > 2) {
+                comment[i].style.display = 'none';
+            }
+        }
     }
 
         let page = 1;
@@ -80,8 +104,6 @@
                 .catch(error => console.error('Error fetching posts:', error));
         }
 
-    
-
         //Funkce pro samotné načtení postů
         function renderPosts(posts) {
     if (posts && posts.length > 0) {
@@ -93,9 +115,10 @@
                 <p><strong>${post.username}</strong></p>
                 <p>${post.content}</p>
                 ${post.media_url ? renderMedia(post.media_url) : ''}
-                <p><em>Posted on ${post.post_time}</em></p>
+                <p><em>Posted on ${formatPostTime(post.post_time)}</em></p>
                 <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
                 <button class="like-button" data-post-id="${post.id}"><i class="fa-regular fa-heart"></i> Like</button>
+                <button class="comments-button" data-post-id="${post.id}"><i class="fa-regular fa-comment"></i> Comments</button>
             `;
 
             postsContainer.appendChild(postElement);
@@ -127,6 +150,7 @@
                 likeCountElement.textContent = parseInt(likeCountElement.textContent) + (isRemoveLike ? -1 : 1);
                 this.dataset.liked = isRemoveLike ? 'false' : 'true';
                 this.innerHTML = isRemoveLike ? '<i class="fa-regular fa-heart"></i> Like' : '<i class="fa-solid fa-heart"></i> Like';
+                this.classList.toggle('liked');
             } else {
                 console.error('Error updating like:', response.statusText);
             }
