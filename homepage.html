@@ -61,7 +61,8 @@
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
 
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+    return `${day}.${month}.${year} at ${hours}:${minutes}:${seconds}`;
     }
     function isYouTubeLink(text) {
         const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -75,17 +76,64 @@
         return match ? match[1] : null;
     }
 
-    function displaycomments() {
-        const comments = document.getElementById('comments');
-        comments.style.display = 'block';
-        //limit comment displayed when comments button clicked
-        const comment = document.getElementsByClassName('comment');
-        for (let i = 0; i < comment.length; i++) {
-            if (i > 2) {
-                comment[i].style.display = 'none';
-            }
-        }
-    }
+    function displayComments(postId) {
+  const commentsSection = document.getElementById(`comments-${postId}`);
+  commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
+
+  // Fetch and display comments when the comments section is shown
+  if (commentsSection.style.display === 'block') {
+    fetchComments(postId);
+  }
+}
+
+
+function toggleCommentsForm(postId) {
+  const commentsForm = document.getElementById(`comment-form-${postId}`);
+  commentsForm.style.display = commentsForm.style.display === 'block' ? 'none' : 'block';
+}
+
+function postComment(postId) {
+  const commentText = document.getElementById(`comment-text-${postId}`).value;
+
+  // Use AJAX or fetch to send the comment to the server
+  fetch('/api/comments', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ postId, commentText }),
+  })
+    .then(response => response.json())
+    .then(response => {
+      if (response.success) {
+        // Optionally update the UI or display a success message
+        console.log('Comment posted successfully');
+        toggleCommentsForm(postId); // Hide the comment form after posting
+        fetchComments(postId); // Fetch and display updated comments
+      } else {
+        console.error('Error posting comment:', response.error);
+      }
+    })
+    .catch(error => console.error('Error posting comment:', error));
+}
+
+function fetchComments(postId) {
+  // Use AJAX or fetch to retrieve comments for the given post
+  fetch(`/api/comments?postId=${postId}`)
+    .then(response => response.json())
+    .then(comments => {
+      const commentsSection = document.getElementById(`comments-${postId}`);
+      commentsSection.innerHTML = ''; // Clear previous comments
+
+      comments.forEach(comment => {
+        const commentElement = document.createElement('div');
+        commentElement.classList.add('comment');
+        commentElement.innerHTML = `<p><strong>${comment.username}</strong>: ${comment.comment}</p>`;
+        commentsSection.appendChild(commentElement);
+      });
+    })
+    .catch(error => console.error('Error fetching comments:', error));
+}
 
         let page = 1;
         const postsContainer = document.getElementById('posts');
@@ -118,7 +166,13 @@
                 <p><em>Posted on ${formatPostTime(post.post_time)}</em></p>
                 <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
                 <button class="like-button" data-post-id="${post.id}"><i class="fa-regular fa-heart"></i> Like</button>
-                <button class="comments-button" data-post-id="${post.id}"><i class="fa-regular fa-comment"></i> Comments</button>
+                <button class="comments-button" data-post-id="${post.id}" onclick="toggleCommentsForm(${post.id})"><i class="fa-regular fa-comment"></i> Comments</button>
+                <div id="comments-${post.id}" class="comments-section">
+                <form id="comment-form-${post.id}" class="comment-form" style="display:none;">
+                <textarea id="comment-text-${post.id}" placeholder="Write a comment" required></textarea>
+                <button type="button" onclick="postComment(${post.id})">Post Comment</button>
+                </form>
+                </div>
             `;
 
             postsContainer.appendChild(postElement);

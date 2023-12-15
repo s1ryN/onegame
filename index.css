@@ -371,7 +371,58 @@ input:checked + label .description {
     font-size: 20px;
 }
 
-@media screen {
-    
+@media screen and (max-width: 1000px) {
+    .left-half {
+        margin-left: 100px;
+    }
+    .right-half {
+        margin-right: 100px;
+    }
 }
+
+@media screen and (max-width: 800px) {
+    .left-half {
+        margin-left: 50px;
+    }
+    .right-half {
+        margin-right: 50px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .left-half {
+        margin-left: 20px;
+    }
+    .right-half {
+        margin-right: 20px;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .left-half {
+        margin-left: 10px;
+    }
+    .right-half {
+        margin-right: 10px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .left-half {
+        margin-left: 5px;
+    }
+    .right-half {
+        margin-right: 5px;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    .left-half {
+        margin-left: 2px;
+    }
+    .right-half {
+        margin-right: 2px;
+    }
+}
+
 

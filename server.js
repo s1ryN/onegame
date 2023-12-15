@@ -253,6 +253,31 @@ async function getPostsFromDatabase(page) {
   });
 }
 
+app.get('/api/comments', async (req, res) => {
+  const postId = req.query.postId;
+
+  try {
+    const comments = await getCommentsFromDatabase(postId);
+    res.json(comments);
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Function to get comments from the database for a specific post
+async function getCommentsFromDatabase(postId) {
+  return new Promise((resolve, reject) => {
+    con.query('SELECT comments.*, users.username FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ? ORDER BY comment_time', [postId], (error, results) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 let isLiking = {};
 
 app.post('/like', (req, res) => {
@@ -392,6 +417,37 @@ app.post('/comment', async (req, res) => {
     }
   });
 });
+
+app.post('/api/comments', async (req, res) => {
+  const userId = req.session.userId;
+  const { postId, commentText } = req.body;
+
+  if (!userId || !postId || !commentText) {
+    return res.status(400).json({ error: 'Invalid request parameters' });
+  }
+
+  try {
+    // Insert the comment into the database
+    const result = await insertCommentIntoDatabase(userId, postId, commentText);
+    res.json({ success: true, commentId: result.insertId });
+  } catch (error) {
+    console.error('Error inserting comment:', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+// Function to insert a comment into the database
+async function insertCommentIntoDatabase(userId, postId, commentText) {
+  return new Promise((resolve, reject) => {
+    con.query('INSERT INTO comments (user_id, post_id, comment_text) VALUES (?, ?, ?)', [userId, postId, commentText], (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
 
 // Helper function to get a user's reaction to a post
 function getReaction(postId, userId) {
