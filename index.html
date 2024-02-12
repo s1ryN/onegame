@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <!-- Základní nastavení na UTF-8, připojení index.css a fontu Space Mono, nastavení title a připojení ikon -->
+    <!-- Základní nastavení na UTF-8, připojení index.css a fontu Space Mono, nastavení title a připojení ikon a viewportu pro resposivní design -->
     <link rel="stylesheet" type="text/css" href="index.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
     <title>OneGame | A Place To Play</title>
     <script src="https://kit.fontawesome.com/b767968911.js" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" user-scalable=no>
 </head>
 <body>
     <!-- Header s logem a tlačítky pro registraci a přihlášení -->
@@ -142,7 +144,7 @@
         <div class="empty-space">
         </div>
         <div class="footer-logo">
-            <img src="images/Onegame.png" draggable="false">
+            <img src="images/Onegame.png" title="onegamegg"draggable="false">
         </div>
     </footer>
 
@@ -165,29 +167,6 @@
             logo3.style.opacity = 1;
         }, 1000); 
     });
-</script>
-
-<script>
-    // Objevení rozdělené sekce při scrollování
-    document.addEventListener("DOMContentLoaded", function() {
-        const leftHalf = document.querySelector(".left-half");
-        const rightHalf = document.querySelector(".right-half");
-
-        leftHalf.style.opacity = 0;
-        rightHalf.style.opacity = 0;
-
-        window.addEventListener("scroll", () => {
-            const scroll = window.pageYOffset;
-
-            if (scroll > 100) {
-                leftHalf.style.transition = "opacity 1s ease-in-out";
-                leftHalf.style.opacity = 1;
-                rightHalf.style.transition = "opacity 1s ease-in-out";
-                rightHalf.style.opacity = 1;
-            }
-        });
-    });
-
 </script>
 
 <script>
