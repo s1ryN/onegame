@@ -25,6 +25,7 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use('/uploads', express.static('uploads'));  
 
 const secretKey = process.env.MY_APP_SECRET_KEY;
 
@@ -151,25 +152,82 @@ app.post('/post', uploadWithStorage.single('media_url'), async (req, res) => {
   let postData = {
     user_id: userId,
     content: req.body.content,
-    media_url: null,
   };
 
   // Check if the content is a YouTube link
-  if (req.body.content && isYouTubeLink(req.body.content)) {
+  const youtubeLink = isYouTubeLink(req.body.content);
+  if (youtubeLink) {
+    // Insert YouTube link into the media table
+    con.query('INSERT INTO media SET ?', { media_url: youtubeLink }, (mediaError, mediaResults) => {
+      if (mediaError) {
+        console.error('SQL Error (Media): ', mediaError);
+        req.flash('error', 'Error occurred during media insertion.');
+        return res.redirect('/homepage.html');
+      }
+  
+      // Associate media with the post in the post_media table
+      const postMediaData = {
+        post_id: null, // The actual post ID will be available after the next query
+        media_id: mediaResults.insertId,
+      };
+  
+      // Insert post into the database
+      con.query('INSERT INTO posts SET ?', postData, (postError, postResults) => {
+        if (postError) {
+          console.error('SQL Error (Post): ', postError);
+          req.flash('error', 'Error occurred during post submission.');
+          return res.redirect('/homepage.html');
+        }
+  
+        // Update the post_media entry with the correct post_id
+        postMediaData.post_id = postResults.insertId;
+        con.query('INSERT INTO post_media SET ?', postMediaData, (linkError) => {
+          if (linkError) {
+            console.error('SQL Error (Link): ', linkError);
+            req.flash('error', 'Error occurred during media-linking.');
+          }
+  
+          // Redirect to homepage
+          return res.redirect('/homepage.html');
+        });
+      });
+    });
+  } else if (req.body.content) {
+    // If it's not a YouTube link, proceed with other content
     postData.content = req.body.content;
-    postData.media_url = req.body.content; // Save YouTube link directly
-  } else if (req.file) {
-    postData.media_url = req.file.filename; // Save uploaded file
+    return res.redirect('/homepage.html');
   }
 
   // Insert post into the database
-  con.query('INSERT INTO posts SET ?', postData, function (error, results, fields) {
+  con.query('INSERT INTO posts SET ?', postData, async (error, results, fields) => {
     if (error) {
       console.error('SQL Error: ', error);
       req.flash('error', 'Error occurred during post submission.');
       return res.redirect('/homepage.html');
+    }
+
+    // Check if there is media associated with the post
+    if (req.file) {
+      const mediaUrl = req.file.filename;
+      // Insert media into the media table
+      con.query('INSERT INTO media SET ?', { media_url: mediaUrl }, (mediaError, mediaResults) => {
+        if (mediaError) {
+          console.error('SQL Error (Media): ', mediaError);
+          req.flash('error', 'Error occurred during media insertion.');
+          return res.redirect('/homepage.html');
+        }
+        // Associate media with the post in post_media table
+        con.query('INSERT INTO post_media SET ?', { post_id: results.insertId, media_id: mediaResults.insertId }, (linkError) => {
+          if (linkError) {
+            console.error('SQL Error (Link): ', linkError);
+            req.flash('error', 'Error occurred during media-linking.');
+          }
+          // Redirect to homepage
+          return res.redirect('/homepage.html');
+        });
+      });
     } else {
-      req.flash('success', 'Post submitted successfully');
+      // Redirect to homepage if no media
       return res.redirect('/homepage.html');
     }
   });
@@ -239,8 +297,7 @@ async function getPostsFromDatabase(page) {
   const offset = (page - 1) * perPage;
 
   return new Promise((resolve, reject) => {
-    con.query(
-      'SELECT posts.*, users.username FROM posts JOIN users ON posts.user_id = users.id ORDER BY post_time DESC LIMIT ? OFFSET ?',
+    con.query('SELECT posts.*, users.username, media.media_url FROM posts JOIN users ON posts.user_id = users.id LEFT JOIN post_media ON posts.id = post_media.post_id LEFT JOIN media ON post_media.media_id = media.id ORDER BY post_time DESC LIMIT ? OFFSET ?',
       [perPage, offset],
       (error, results) => {
         if (error) {
