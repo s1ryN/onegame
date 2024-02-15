@@ -10,5 +10,6 @@ Current problems :
 7. There are still some parts missing, like a .sql file to create all the tables if you would want to setup this
 8. There is no guide on how to use .env for storing your database password
 9. This project is far from finished 
+10. Most files for functionality are missing, they will be added with the finished project
 
 Most of these things will be fixed in the next patches or in the future = it may take a month, it may take a year, i dont know
