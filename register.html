@@ -1,21 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <!-- Základní nastavení na UTF-8, připojení ral.css (registerandlogin.css) a fontu Space Mono, nastavení title a připojení ikon a viewportu pro resposivní design -->
   <link rel="stylesheet" type="text/css" href="ral.css">
   <title>OneGame | Registration</title>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
+  <!-- Logo s obrázkem pro redirect na index.html -->
   <div class="logo">
     <a href="index.html" class="linkage">
       <img src="images/Onegame.png" alt="Logo" class="image-container" draggable="false" oncontextmenu="return true;">
     </a>
   </div>
+  <!-- Formulář pro registraci uživatele (jméno, email, heslo, recaptcha (verifikaci recaptchi zařizuje backend (express framework)))-->
   <div class="container">
     <div class="form">
       <form method="post" id="form" action="http://localhost:3000/register.html">
       <label for="username"><strong>Username</strong></label>
       <input type="text" id="username" name="username" required autofocus>
+      <small id="usernameCount" class="char-count">0/20</small>
       <label for="email"><strong>Email</strong></label>
       <input type="email" id="email" name="email" required placeholder="ex123@example.com">
       <label for="password"><strong>Password</strong></label>
@@ -23,6 +30,7 @@
       <div class="g-recaptcha" data-sitekey="6Le25nIoAAAAAFyEkChVXQoMoIR_bT9MRfl1CND6"></div>
       <input type="submit" value="Register" data-value="Register">
     </div>
+    <!-- Případný redirect na login.html pokud má již uživatel účet -->
       <div class="acc">
           <p><small>Already have an account? <a href="login.html" class="link-style">Login</a></small></p>
       </div>
@@ -31,6 +39,7 @@
       </div>
     </form>
   </div>
+  <!-- Boční odbočky na stránky (zbytečné, možná ve finálním projektu budou)-->
   <footer class="footer">
     <small><a href="about.html" class="link-style">About</a></small>
     <small><a href="tos.html" class="link-style">Terms of Service</a></small>
@@ -40,10 +49,30 @@
     <small><a>© 2023 OneGame.gg</a></small>
   </footer>
 </div>
-
-
-
-
 </body>
-</html>
+<script>
+    //Skript pro kontrolu délky zadaného uživatelského jména a jeho omezení na 20 znaků
+    document.addEventListener('DOMContentLoaded', function() {
+      var usernameInput = document.getElementById("username");
+      var countElement = document.getElementById("usernameCount");
 
+      usernameInput.addEventListener('input', function() {
+        var inputValue = usernameInput.value;
+        var inputLength = inputValue.length;
+        var maxLength = 20;
+
+        countElement.textContent = inputLength + "/" + maxLength;
+
+        if (inputLength > maxLength) {
+          countElement.style.color = "red";
+        } else {
+          countElement.style.color = "";
+        }
+
+        if (inputLength > maxLength) {
+          usernameInput.value = inputValue.substring(0, maxLength);
+        }
+      });
+    });
+</script>
+</html>

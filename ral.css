@@ -16,11 +16,11 @@ body {
     border-radius: 25px;
     width: 300px;
     box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+    position: relative; /* Added position relative */
 }
 
 .logo img {
     width: 150px; 
-    
 }
 
 form {
@@ -38,6 +38,15 @@ input[type="text"], input[type="email"], input[type="password"] {
     border-radius: 1px;
     border-color: grey;
     border: 1px solid #ddd;
+    position: relative; /* Added position relative */
+}
+
+.char-count {
+    position: absolute;
+    top: 65px;
+    right: 30px;
+    transform: translateY(-50%);
+    color: black; /* Set the color to white or your desired color */
 }
 
 input[type="submit"] {
@@ -58,7 +67,6 @@ input[type="submit"] {
     color: grey;
     margin-top: 0px;
     text-decoration: none; 
-
 }
 
 .container a,
@@ -80,7 +88,6 @@ input[type="submit"] {
     position: absolute;
     bottom: 0;
     width: 100%;
-    
 }
 
 .footer a {
@@ -88,16 +95,3 @@ input[type="submit"] {
     color: #555555; 
     margin-right: 20px;
 }
-
-.form small {
-    color: #e74c3c;
-    visibility: hidden;
-}
-
-
-  
-
-
-
-
-

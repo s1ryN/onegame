@@ -1,144 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <!-- Základní nastavení na UTF-8, připojení homepage.css a fontu Space Mono, nastavení title. -->
+    <!-- Basic setup with UTF-8, linking styles, Space Mono font, title, and font-awesome icons -->
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="homepage.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap">
     <script src="https://kit.fontawesome.com/b767968911.js" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OneGame | Homepage</title>
 
     <script>
-        // Move the function to the client-side script
-    function isYouTubeLink(text) {
-        const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-        const match = text.match(youtubeRegex);
-        return match ? match[0] : null;
-    }
+        // Function to detect YouTube links
+        function isYouTubeLink(text) {
+            const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            const match = text.match(youtubeRegex);
+            return match ? match[0] : null;
+        }
 
-    // Function for extracting YouTube video ID from the provided YouTube link
-    function getYouTubeVideoId(url) {
-        const match = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-        return match ? match[1] : null;
-    }
-    </script>
-    
-</head>
-<body>
-    <!-- Header s logem stránky na proklik na homepage.html -->
-    <div class="header">
-        <a href="homepage.html">
-            <img src="images/Onegame.png" alt="Logo" class="logo" draggable="false">
-        </a>
-    </div>
+        // Function to get YouTube video ID
+        function getYouTubeVideoId(url) {
+            const match = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            return match ? match[1] : null;
+        }
 
-    <!-- Formulář pro postování -->
-    <div id="post-form">
-        <form action="/post" method="post" id="post" enctype="multipart/form-data">
-            <!-- Textový obsah postu -->
-            <textarea name="content" id="post-text" placeholder="What's on your mind?" required></textarea>
-            <!-- Mediální obsah postu -->
-            <input type="file" name="media_url" id="post-image" accept="image/*, video/*">
-            <!-- Ikonka pro vložení mediálního obsahu -->
-            <label for="post-image" id="post-image-label" class="image-icon"><i class="fa-solid fa-images"></i>Add Image</label>
-            <!-- Tlačítko pro zveřejnění příspěvku -->
-            <button type="submit">Post</button>
-        </form>
-    </div>
+        // Function to format post time for better readability
+        function formatPostTime(postTime) {
+            const date = new Date(postTime);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
 
-    <!-- Část pro zobrazení postů -->
-    <div id="posts"></div>
+            return `${day}.${month}.${year} at ${hours}:${minutes}:${seconds}`;
+        }
 
-    <!-- Skript pro zobrazení postů a jejich obsahu a jejich načtení z databáze -->
-    <script>
+        // Function to display comments for a post
+        function displayComments(postId) {
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
 
-    function formatPostTime(postTime) {
-    const date = new Date(postTime);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based in JavaScript
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
+            // Get and display comments from the database
+            if (commentsSection.style.display === 'block') {
+                fetchComments(postId);
+            }
+        }
 
+        // Function to toggle comments form visibility
+        function toggleCommentsForm(postId) {
+            const commentsForm = document.getElementById(`comment-form-${postId}`);
+            commentsForm.style.display = commentsForm.style.display === 'block' ? 'none' : 'block';
+        }
 
-    return `${day}.${month}.${year} at ${hours}:${minutes}:${seconds}`;
-    }
-    function isYouTubeLink(text) {
-        const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-        const match = text.match(youtubeRegex);
-        return match ? match[0] : null;
-    }
+        // Function to post a comment
+        function postComment(postId) {
+            const commentText = document.getElementById(`comment-text-${postId}`).value;
 
-    // Function for extracting YouTube video ID from the provided YouTube link
-    function getYouTubeVideoId(url) {
-        const match = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-        return match ? match[1] : null;
-    }
+            // Send comments to the backend server and database
+            fetch('/api/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ postId, commentText }),
+            })
+            .then(response => response.json())
+            .then(response => {
+                if (response.success) {
+                    console.log('Comment posted successfully');
+                    toggleCommentsForm(postId);
+                    fetchComments(postId);
+                } else {
+                    console.error('Error posting comment:', response.error);
+                }
+            })
+            .catch(error => console.error('Error posting comment:', error));
+        }
 
-    function displayComments(postId) {
-  const commentsSection = document.getElementById(`comments-${postId}`);
-  commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
+        // Function to fetch comments from the database
+        function fetchComments(postId) {
+            fetch(`/api/comments?postId=${postId}`)
+                .then(response => response.json())
+                .then(comments => {
+                    const commentsSection = document.getElementById(`comments-${postId}`);
+                    commentsSection.innerHTML = '';
 
-  // Fetch and display comments when the comments section is shown
-  if (commentsSection.style.display === 'block') {
-    fetchComments(postId);
-  }
-}
-
-
-function toggleCommentsForm(postId) {
-  const commentsForm = document.getElementById(`comment-form-${postId}`);
-  commentsForm.style.display = commentsForm.style.display === 'block' ? 'none' : 'block';
-}
-
-function postComment(postId) {
-  const commentText = document.getElementById(`comment-text-${postId}`).value;
-
-  // Use AJAX or fetch to send the comment to the server
-  fetch('/api/comments', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ postId, commentText }),
-  })
-    .then(response => response.json())
-    .then(response => {
-      if (response.success) {
-        // Optionally update the UI or display a success message
-        console.log('Comment posted successfully');
-        toggleCommentsForm(postId); // Hide the comment form after posting
-        fetchComments(postId); // Fetch and display updated comments
-      } else {
-        console.error('Error posting comment:', response.error);
-      }
-    })
-    .catch(error => console.error('Error posting comment:', error));
-}
-
-function fetchComments(postId) {
-  // Use AJAX or fetch to retrieve comments for the given post
-  fetch(`/api/comments?postId=${postId}`)
-    .then(response => response.json())
-    .then(comments => {
-      const commentsSection = document.getElementById(`comments-${postId}`);
-      commentsSection.innerHTML = ''; // Clear previous comments
-
-      comments.forEach(comment => {
-        const commentElement = document.createElement('div');
-        commentElement.classList.add('comment');
-        commentElement.innerHTML = `<p><strong>${comment.username}</strong>: ${comment.comment}</p>`;
-        commentsSection.appendChild(commentElement);
-      });
-    })
-    .catch(error => console.error('Error fetching comments:', error));
-}
+                    comments.forEach(comment => {
+                        const commentElement = document.createElement('div');
+                        commentElement.classList.add('comment');
+                        commentElement.innerHTML = `<p><strong>${comment.username}</strong>: ${comment.comment}</p>`;
+                        commentsSection.appendChild(commentElement);
+                    });
+                })
+                .catch(error => console.error('Error fetching comments:', error));
+        }
 
         let page = 1;
-        const postsContainer = document.getElementById('posts');
+let postsContainer;
 
-        //Funkce pro prodloužení stránky a načtení více postů při scrollování na homepage
+document.addEventListener("DOMContentLoaded", function() {
+    postsContainer = document.getElementById('posts');
+});
+
+        // Function to fetch more posts when scrolling on the homepage
         function fetchPosts() {
             fetch(`/api/posts?page=${page}`)
                 .then(response => response.json())
@@ -148,167 +113,75 @@ function fetchComments(postId) {
                         page++;
                     }
                 })
-                //Konzolová chybová zpráva v případě problému při načítání postů
                 .catch(error => console.error('Error fetching posts:', error));
         }
 
-        //Funkce pro samotné načtení postů
+        // Function to render posts
         function renderPosts(posts) {
-    if (posts && posts.length > 0) {
-        posts.forEach(post => {
-            const postElement = document.createElement('div');
-            postElement.classList.add('post');
+            if (posts && posts.length > 0) {
+                posts.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.classList.add('post');
 
-            postElement.innerHTML = `
-                <p><strong>${post.username}</strong></p>
-                <p>${post.content}</p>
-                ${post.media_url ? renderMedia(post.media_url) : ''}
-                <p><em>Posted on ${formatPostTime(post.post_time)}</em></p>
-                <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
-                <button class="like-button" data-post-id="${post.id}"><i class="fa-regular fa-heart"></i> Like</button>
-                <button class="comments-button" data-post-id="${post.id}" onclick="toggleCommentsForm(${post.id})"><i class="fa-regular fa-comment"></i> Comments</button>
-                <div id="comments-${post.id}" class="comments-section">
-                <form id="comment-form-${post.id}" class="comment-form" style="display:none;">
-                <textarea id="comment-text-${post.id}" placeholder="Write a comment" required></textarea>
-                <button type="button" onclick="postComment(${post.id})">Post Comment</button>
-                </form>
-                </div>
-            `;
+                    postElement.innerHTML = `
+                        <p><strong>${post.username}</strong></p>
+                        <p>${post.content}</p>
+                        ${post.media_url ? `<img src="/uploads/${post.media_url}" alt="Post Media">` : ''}
+                        <p><em>Posted on ${formatPostTime(post.post_time)}</em></p>
+                        <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
+                        <button class="like-button" data-post-id="${post.id}"><i class="fa-regular fa-heart"></i> Like</button>
+                        <button class="comments-button" data-post-id="${post.id}" onclick="toggleCommentsForm(${post.id})"><i class="fa-regular fa-comment"></i> Comments</button>
+                        <div id="comments-${post.id}" class="comments-section">
+                            <form id="comment-form-${post.id}" class="comment-form" style="display:none;">
+                                <textarea id="comment-text-${post.id}" placeholder="Write a comment" required></textarea>
+                                <button type="button" onclick="postComment(${post.id})">Post Comment</button>
+                            </form>
+                        </div>
+                    `;
 
-            postsContainer.appendChild(postElement);
-        });
+                    postsContainer.appendChild(postElement);
+                });
 
+                // Like button logic
+                document.querySelectorAll('.like-button').forEach(button => {
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
 
-        // Like button for liking a post
-        document.querySelectorAll('.like-button').forEach(button => {
-    // Remove all previous event listeners
-    const newButton = button.cloneNode(true);
-    button.parentNode.replaceChild(newButton, button);
+                    newButton.addEventListener('click', function() {
+                        this.disabled = true;
 
-    newButton.addEventListener('click', function() {
-        this.disabled = true;
+                        const postId = newButton.dataset.postId;
+                        const isRemoveLike = this.dataset.liked === 'true';
 
-        const postId = newButton.dataset.postId;
-        const isRemoveLike = this.dataset.liked === 'true';
-
-        fetch(isRemoveLike ? '/unlike' : '/like', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ postId }),
-        })
-        .then(response => {
-            if (response.ok) {
-                const likeCountElement = document.getElementById(`like-count-${postId}`);
-                likeCountElement.textContent = parseInt(likeCountElement.textContent) + (isRemoveLike ? -1 : 1);
-                this.dataset.liked = isRemoveLike ? 'false' : 'true';
-                this.innerHTML = isRemoveLike ? '<i class="fa-regular fa-heart"></i> Like' : '<i class="fa-solid fa-heart"></i> Like';
-                this.classList.toggle('liked');
-            } else {
-                console.error('Error updating like:', response.statusText);
+                        fetch(isRemoveLike ? '/unlike' : '/like', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ postId }),
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                const likeCountElement = document.getElementById(`like-count-${postId}`);
+                                likeCountElement.textContent = parseInt(likeCountElement.textContent) + (isRemoveLike ? -1 : 1);
+                                this.dataset.liked = isRemoveLike ? 'false' : 'true';
+                                this.innerHTML = isRemoveLike ? '<i class="fa-regular fa-heart"></i> Like' : '<i class="fa-solid fa-heart"></i> Like';
+                                this.classList.toggle('liked');
+                            } else {
+                                console.error('Error updating like:', response.statusText);
+                            }
+                            this.disabled = false;
+                        })
+                        .catch(error => {
+                            console.error('Error updating like:', error);
+                            this.disabled = false;
+                        });
+                    });
+                });
             }
-            this.disabled = false;
-        })
-        .catch(error => {
-            console.error('Error updating like:', error);
-            this.disabled = false;
-        });
-    });
-});
-    }
-}
-
-function likePost(button) {
-    const postId = button.dataset.postId;
-
-    fetch('/like', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ postId }),
-    })
-    .then(response => {
-        if (response.ok) {
-            const likeCountElement = document.getElementById(`like-count-${postId}`);
-            likeCountElement.textContent = parseInt(likeCountElement.textContent) + 1;
-            button.textContent = 'Remove Like';
-        } else {
-            console.error('Error liking post:', response.statusText);
         }
-        button.disabled = false;
-    })
-    .catch(error => {
-        console.error('Error liking post:', error);
-        button.disabled = false;
-    });
-}
 
-function unlikePost(button) {
-    const postId = button.dataset.postId;
-
-    fetch('/unlike', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ postId }),
-    })
-    .then(response => {
-        if (response.ok) {
-            const likeCountElement = document.getElementById(`like-count-${postId}`);
-            likeCountElement.textContent = parseInt(likeCountElement.textContent) - 1;
-            button.textContent = 'Like';
-        } else {
-            console.error('Error unliking post:', response.statusText);
-        }
-        button.disabled = false;
-    })
-    .catch(error => {
-        console.error('Error unliking post:', error);
-        button.disabled = false;
-    });
-}
-
-document.querySelectorAll('.like-button').forEach(button => {
-    // Remove all previous event listeners
-    const newButton = button.cloneNode(true);
-    button.parentNode.replaceChild(newButton, button);
-
-    newButton.addEventListener('click', function() {
-        this.disabled = true;
-
-        if (this.textContent === 'Remove Like') {
-            unlikePost(this);
-        } else {
-            likePost(this);
-        }
-    });
-});
-
-// Function for loading media
-function renderMedia(mediaUrl) {
-    const baseMediaUrl = '/uploads/'; // Folder from which media is loaded
-    const fullMediaUrl = `${baseMediaUrl}${mediaUrl}`;
-
-    const fileExtension = mediaUrl.split('.').pop().toLowerCase();
-    if (fileExtension === 'mp4' || fileExtension === 'webm') {
-        //
-        return `<video controls><source src="${fullMediaUrl}" type="video/mp4"></video>`;
-    } else if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif') {
-        // If it's an image
-        return `<img src="${fullMediaUrl}" alt="Post Media">`;
-    } else if (isYouTubeLink(mediaUrl)) {
-        // If it's a YouTube link
-        const videoId = getYouTubeVideoId(mediaUrl);
-        return `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
-    } else {
-        // Unsupported file type
-        return 'Unsupported media type';
-    }
-}
-        // Function to check if the user has scrolled to the bottom of the page
+        // Function to check if the user is at the bottom of the page
         function isAtBottom() {
             return window.innerHeight + window.scrollY >= document.body.offsetHeight;
         }
@@ -316,13 +189,33 @@ function renderMedia(mediaUrl) {
         // Event listener for scrolling
         window.addEventListener('scroll', () => {
             if (isAtBottom()) {
-                fetchPosts(); // Fetch more posts when the user reaches the bottom
+                fetchPosts();
             }
         });
 
-        // Initial fetch when the page loads
+        // Initial fetch of posts
         fetchPosts();
 
+        function renderMedia(mediaUrl, postId) {
+    console.log('Rendering media for postId:', postId, 'with mediaUrl:', mediaUrl);
+
+    const baseMediaUrl = '/uploads/';
+    const fullMediaUrl = `${baseMediaUrl}${mediaUrl}`;
+
+    const fileExtension = mediaUrl.split('.').pop().toLowerCase();
+    if (fileExtension === 'mp4' || fileExtension === 'webm') {
+        return `<video controls><source src="${fullMediaUrl}" type="video/mp4"></video>`;
+    } else if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif') {
+        return `<img src="${fullMediaUrl}" alt="Post Media">`;
+    } else if (isYouTubeLink(mediaUrl)) {
+        const videoId = getYouTubeVideoId(mediaUrl);
+        return `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+    } else {
+        return 'Unsupported media type';
+    }
+}
+
+        // Function to handle post likes
         function handleLike(postId) {
             fetch('/like', {
                 method: 'POST',
@@ -331,16 +224,40 @@ function renderMedia(mediaUrl) {
                 },
                 body: JSON.stringify({ postId: postId }),
             })
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Like successful');
-                        // You may want to update the UI here, e.g., increment like count or change button appearance
-                    } else {
-                        console.error('Error liking post:', response.statusText);
-                    }
-                })
-                .catch(error => console.error('Error liking post:', error));
+            .then(response => {
+                if (response.ok) {
+                    console.log('Like successful');
+                } else {
+                    console.error('Error liking post:', response.statusText);
+                }
+            })
+            .catch(error => console.error('Error liking post:', error));
         }
     </script>
+</head>
+<body>
+    <!-- Header with the site logo linking to homepage.html -->
+    <div class="header">
+        <a href="homepage.html">
+            <img src="images/Onegame.png" alt="Logo" class="logo" draggable="false">
+        </a>
+    </div>
+
+    <!-- Form for posting -->
+    <div id="post-form">
+        <form action="/post" method="post" id="post" enctype="multipart/form-data">
+            <!-- Text content of the post -->
+            <textarea name="content" id="post-text" placeholder="What's on your mind?" required></textarea>
+            <!-- Media content of the post -->
+            <input type="file" name="media_url" id="post-image" accept="image/*, video/*">
+            <!-- Icon for adding media content -->
+            <label for="post-image" id="post-image-label" class="image-icon"><i class="fa-solid fa-images"></i>Add Image</label>
+            <!-- Button for posting the post -->
+            <button type="submit">Post</button>
+        </form>
+    </div>
+
+    <!-- Section for displaying posts -->
+    <div id="posts"></div>
 </body>
 </html>

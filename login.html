@@ -1,16 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <!-- Základní nastavení na UTF-8, připojení ral.css (registerandlogin.css) a fontu Space Mono, nastavení title a připojení ikon a viewportu pro resposivní design -->
     <link rel="stylesheet" type="text/css" href="ral.css">
     <title>OneGame | Login</title>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
+    <!-- Logo s obrázkem pro redirect na index.html -->
     <div class="logo">
         <a href="index.html">
           <img src="images/Onegame.png" alt="Logo" draggable="false">
         </a>
     </div>
+    <!-- Formulář pro login uživatele (jméno, heslo, recaptcha (verifikaci recaptchi zařizuje backend (express framework)))-->
     <div class="container">
         <form action="http://localhost:3000/login" method="post">
             <label for="username"><strong>Username</strong></label>
@@ -18,12 +23,14 @@
             <label for="password"><strong>Password</strong></label>
             <input type="password" id="password" name="password" required>
             <div class="g-recaptcha" data-sitekey="6Le25nIoAAAAAFyEkChVXQoMoIR_bT9MRfl1CND6"></div>
-            <input type="submit" value="Login">            
+            <input type="submit" value="Login">   
+            <!-- Případný redirect na register.html pokud nemá uživatel účet -->         
                 <div class="acc">
                     <p><small>Don't have an account? <a href="register.html" class="link-style">Sign up</a> </small></p>
                 </div>
         </form>
     </div>
+    <!-- Boční odbočky na stránky (zbytečné, možná ve finálním projektu budou)-->
     <footer class="footer">
         <small><a href="#" class="link-style">About</a></small>
         <small><a href="#" class="link-style">Terms of Service</a></small>
