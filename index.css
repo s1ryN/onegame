@@ -1,3 +1,5 @@
+/*EN: CSS is a mess and it is impossible to comments most of these things, because they are simply just too easy to understand or there is nothing to say*/
+/*CZ: CSS je border a je nemožné vytvářet komentáře pro většinu věcí, protože jsou jednoduše až moc jednoduché na pochopení nebo k ním není co říct*/
 html {
     scroll-behavior: smooth;
 }
@@ -42,28 +44,6 @@ body {
     cursor: pointer;
     font-family: "Space Mono", monospace;
     height: 40px;
-}
-
-.logo-separator {
-    display: flex;
-    align-items: center;
-}
-
-.logo-separator hr {
-    flex-grow: 2; 
-    border-color: #ffffff; 
-    margin-right: 20px; 
-    margin-left: 20px;
-}
-
-.logo-separator img {
-    height: 30px;
-}
-
-.answer {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
 }
 
 .logo2-container {
@@ -132,6 +112,8 @@ body {
     position: relative; 
 }
 
+/*EN: This is the animation for the typing like blinking line that is right after the question mark*/
+/*CZ: Toto je animace pro rádoby psaní, jakožto blikající čára rovnou za otazníkem*/
 .question-mark h1::after {
     content: '';
     display: inline-block;
@@ -256,12 +238,15 @@ input:checked + label .description {
 .card[for="c1"] {
     background-image: url('images/cs2.jfif');
 }
+
 .card[for="c2"] {
     background-image: url('images/teammates.jpg');
 }
+
 .card[for="c3"] {
     background-image: url('images/gaming.jpg');
 }
+
 .card[for="c4"] {
     background-image: url('images/comms.jpg');
 }
@@ -271,6 +256,8 @@ input:checked + label .description {
     margin-bottom: 20px;
 }
 
+/*EN: Animation for heart element that simulates heartbeat*/
+/*CZ: Animace pro element srdíčka která simuluje tep srdce*/
 #heart {
     width: 100px;
     animation: heartbeat 1s infinite ease-in-out;
@@ -299,6 +286,7 @@ input:checked + label .description {
     justify-content: center;
     align-items: center;
     text-align: center;
+    
 }
 
 .registerbutton button {
@@ -312,6 +300,7 @@ input:checked + label .description {
     cursor: pointer;
     font-family: "Space Mono", monospace;
     font-size: 15px;
+    box-shadow: 0 0 3px 3px rgba(255, 255, 255, 1);
 }
 
 .footer-grid {
@@ -360,12 +349,13 @@ input:checked + label .description {
     font-size: 20px;
 }
 
+/*EN: Responsive design for most mobile devices, tablets or any other devices with a screen smaller than 1920x1080*/
+/*CZ: Responsivní design pro většinu mobilních zařízení, tabletu nebo jiných zařízení s menší obrazovkou než 1920x1080*/
 @media only screen and (max-width: 375px) {
     body {
         font-size: 12px; 
         overflow-x: hidden;
     }
-
 
     .header {
         padding: 15px; 
@@ -411,7 +401,7 @@ input:checked + label .description {
         justify-content: center;
     }
 
-    .left-half{
+    .left-half {
         text-align: center;
         margin-bottom: 80px;
     }
@@ -443,11 +433,11 @@ input:checked + label .description {
     .fab {
         font-size: 16px; 
     }
+
     .section2text {
         margin-left: 10px;
         margin-right: 10px;
     }
-
 }
 
 @media only screen and (max-width: 450px) {
@@ -456,7 +446,6 @@ input:checked + label .description {
         overflow-x: hidden;
     }
 
-
     .header {
         padding: 15px; 
     }
@@ -501,14 +490,16 @@ input:checked + label .description {
         justify-content: center;
     }
 
-    .left-half{
+    .left-half {
         text-align: center;
         margin-bottom: 80px;
     }
+
     .section {
         visibility: hidden;
         display: none;
     }
+
     .footer-grid {
         padding: 10px; 
     }
@@ -533,6 +524,7 @@ input:checked + label .description {
     .fab {
         font-size: 16px; 
     }
+
     .section2text {
         margin-left: 10px;
         margin-right: 10px;
@@ -546,7 +538,6 @@ input:checked + label .description {
         overflow-x: hidden;
     }
 
-
     .header {
         padding: 15px; 
     }
@@ -591,10 +582,11 @@ input:checked + label .description {
         justify-content: center;
     }
 
-    .left-half{
+    .left-half {
         text-align: center;
         margin-bottom: 80px;
     }
+
     .section {
         visibility: hidden;
         display: none;
@@ -623,11 +615,11 @@ input:checked + label .description {
     .fab {
         font-size: 16px; 
     }
+
     .section2text {
         margin-left: 10px;
         margin-right: 10px;
     }
-
 }
 
 @media only screen and (max-width: 600px) {
@@ -636,7 +628,6 @@ input:checked + label .description {
         overflow-x: hidden;
     }
 
-
     .header {
         padding: 15px; 
     }
@@ -681,14 +672,16 @@ input:checked + label .description {
         justify-content: center;
     }
 
-    .left-half{
+    .left-half {
         text-align: center;
         margin-bottom: 80px;
     }
+
     .section {
         visibility: hidden;
         display: none;
     }
+
     .footer-grid {
         padding: 10px; 
     }
@@ -713,11 +706,11 @@ input:checked + label .description {
     .fab {
         font-size: 16px; 
     }
+
     .section2text {
         margin-left: 10px;
         margin-right: 10px;
     }
-
 }
 
 @media only screen and (max-width: 700px) {
@@ -726,7 +719,6 @@ input:checked + label .description {
         overflow-x: hidden;
     }
 
-
     .header {
         padding: 15px; 
     }
@@ -771,10 +763,11 @@ input:checked + label .description {
         justify-content: center;
     }
 
-    .left-half{
+    .left-half {
         text-align: center;
         margin-bottom: 80px;
     }
+
     .section {
         visibility: hidden;
         display: none;
@@ -803,11 +796,11 @@ input:checked + label .description {
     .fab {
         font-size: 16px; 
     }
+
     .section2text {
         margin-left: 10px;
         margin-right: 10px;
     }
-
 }
 
 @media only screen and (max-width: 800px) {
@@ -815,7 +808,6 @@ input:checked + label .description {
         font-size: 12px; 
         overflow-x: hidden;
     }
-
 
     .header {
         padding: 15px; 
@@ -861,7 +853,7 @@ input:checked + label .description {
         justify-content: center;
     }
 
-    .left-half{
+    .left-half {
         text-align: center;
         margin-bottom: 80px;
     }
@@ -893,11 +885,11 @@ input:checked + label .description {
     .fab {
         font-size: 16px; 
     }
+
     .section2text {
         margin-left: 10px;
         margin-right: 10px;
     }
-
 }
 
 @media only screen and (max-width: 900px) {
@@ -951,10 +943,11 @@ input:checked + label .description {
         justify-content: center;
     }
 
-    .left-half{
+    .left-half {
         text-align: center;
         margin-bottom: 80px;
     }
+
     .section {
         visibility: hidden;
         display: none;
@@ -983,11 +976,11 @@ input:checked + label .description {
     .fab {
         font-size: 16px; 
     }
+
     .section2text {
         margin-left: 10px;
         margin-right: 10px;
     }
-
 }
 
 @media only screen and (max-width: 1000px) {
@@ -996,7 +989,6 @@ input:checked + label .description {
         overflow-x: hidden;
     }
 
-
     .header {
         padding: 15px; 
     }
@@ -1041,10 +1033,11 @@ input:checked + label .description {
         justify-content: center;
     }
 
-    .left-half{
+    .left-half {
         text-align: center;
         margin-bottom: 80px;
     }
+
     .section {
         visibility: hidden;
         display: none;
@@ -1073,11 +1066,11 @@ input:checked + label .description {
     .fab {
         font-size: 16px; 
     }
+
     .section2text {
         margin-left: 10px;
         margin-right: 10px;
     }
-
 }
 
 @media only screen and (max-width: 1100px) {
@@ -1086,7 +1079,6 @@ input:checked + label .description {
         overflow-x: hidden;
     }
 
-
     .header {
         padding: 15px; 
     }
@@ -1131,10 +1123,11 @@ input:checked + label .description {
         justify-content: center;
     }
 
-    .left-half{
+    .left-half {
         text-align: center;
         margin-bottom: 80px;
     }
+
     .section {
         visibility: hidden;
         display: none;
@@ -1163,12 +1156,9 @@ input:checked + label .description {
     .fab {
         font-size: 16px; 
     }
+
     .section2text {
         margin-left: 10px;
         margin-right: 10px;
     }
-
 }
-
-
-
