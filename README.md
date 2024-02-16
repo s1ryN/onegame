@@ -12,4 +12,6 @@ Current problems :
 9. This project is far from finished 
 10. Most files for functionality are missing, they will be added with the finished project
 
+Things in version 1.0 are mostly finished with notes and everything and there will be only small changes if any
+
 Most of these things will be fixed in the next patches or in the future = it may take a month, it may take a year, i dont know
