@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Základní nastavení na UTF-8, připojení index.css a fontu Space Mono, nastavení title a připojení ikon a viewportu pro resposivní design -->
+    <!--EN: Default setup to UFT-8 and viewportu for responsive desing, 
+        connection of index.css, Space Mono font and icons, setup of the title for the page-->
+    <!--CZ: Základní nastavení na UTF-8 a viewportu pro responsivní design, 
+        připojení index.css, fontu Space Mono a ikon, nastavení title pro stránku-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" user-scalable=no>
+    <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="index.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
-    <title>OneGame | A Place To Play</title>
     <script src="https://kit.fontawesome.com/b767968911.js" crossorigin="anonymous"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" user-scalable=no>
+    <title>OneGame | A Place To Play</title>
 </head>
 <body>
-    <!-- Header s logem a tlačítky pro registraci a přihlášení -->
+    <!--EN: Header with a logo and buttons for registration and login-->
+    <!--CZ: Header s logem a tlačítky pro registraci a přihlášení -->
     <div class="header">
         <a href="index.html">
             <img src="images/Onegame.png" alt="Logo" class="logo" draggable="false">
@@ -21,7 +25,8 @@
         </div>
     </div>
 
-    <!-- Loga, která se objeví při načtení/refreshnutí stránky -->
+    <!--EN: Logos, which appear when you load/refresh the site-->
+    <!--CZ: Loga, která se objeví při načtení/refreshnutí stránky-->
     <div class="logo2-container">
         <img src="images/Onegame2.png" alt="Logo2" class="logo2" draggable="false">
     </div>
@@ -29,23 +34,15 @@
         <img src="images/Onegame3.png" alt="Logo3" class="logo3" draggable="false">
     </div>
 
-    <!-- Rozdělená sekce s otazníkem a odpovědmi na nějaké základní otázky -->
+    <!--EN: Split section with a question mark and responses for some common questions -->
+    <!--CZ: Rozdělená sekce s otazníkem a odpovědmi na nějaké základní otázky -->
     <div class="split-section">
         <div class="left-half">
             <h2 data-value="What is Onegame?">What is Onegame?</h2>
-            <p>
-                OneGame is a new social network for gamers.
-            </p>
-            <p>
-                Trying to find someone to play with? Try our social network.
-            </p>
-            <p>
-                Are you just looking for some cool clips? We have them.
-            </p>
-            <p>
-                Wanna post some of your clips or screenshots? We welcome your input.
-            </p>
-
+            <p>OneGame is a new social network for gamers.</p>
+            <p>Trying to find someone to play with? Try our social network.</p>
+            <p>Are you just looking for some cool clips? We have them.</p>
+            <p>Wanna post some of your clips or screenshots? We welcome your input.</p>
         </div>
 
         <div class="right-half">
@@ -55,7 +52,8 @@
         </div>
     </div>
 
-    <!-- Sekce s obrázky pro styl -->
+    <!--EN: Section with pictures for style-->
+    <!--CZ: Sekce s obrázky pro styl-->
     <div class="section">
         <div class="wrapper">
             <div class="container">
@@ -103,7 +101,8 @@
         </div>
     </div>
 
-    <!-- Poslední část pro design se srdíčkem a jeho animací + tlačítko na registraci -->
+    <!--EN: Last part for desing with a heart and its animation + button for registration-->
+    <!--CZ: Poslední část pro design se srdíčkem a jeho animací + tlačítko na registraci -->
     <div class="section2">
         <div class="heart-container">
             <img src="images/heart.png" id="heart" alt="Heartbeat Animation" draggable="false">
@@ -117,8 +116,8 @@
             <button data-value="Register" onclick="location.href='/register.html'">Register</button>
         </div>
     </div>
-
-    <!-- Footer s odkazy na sociální sítě, důležité odkazy a logo -->
+    <!--EN: Footer with links to social sites, important links and a logo -->
+    <!--CZ: Footer s odkazy na sociální sítě, důležité odkazy a logo -->
     <footer class="footer-grid">
         <div class="footer-item">
             <h2>Follow Us</h2>
@@ -142,6 +141,8 @@
             </ul>
         </div>
         <div class="empty-space">
+            <!--EN: Empty space in grid for better appearance-->
+            <!--CZ: Prázdné místo v gridu pro lepší vzhled-->
         </div>
         <div class="footer-logo">
             <img src="images/Onegame.png" title="onegamegg"draggable="false">
@@ -149,7 +150,8 @@
     </footer>
 
 <script>
-    // Skript pro zobrazení loga 2 a 3 a jeho fade do obrazu
+    //EN: Script for displaying logos 2 and 3
+    //CZ: Skript pro zobrazení loga 2 a 3 
     document.addEventListener("DOMContentLoaded", function() {
         const logo2 = document.querySelector(".logo2");
         const logo3 = document.querySelector(".logo3");
@@ -170,7 +172,8 @@
 </script>
 
 <script>
-    // Efekt mixování písmenek na tlačítkách (delší)
+    //EN: Effect for mixing letter on buttons (longer)
+    //CZ: Efekt mixování písmenek na tlačítkách (delší)
     document.querySelectorAll(".buttons button, .registerbutton button").forEach(button => {
         button.onmouseover = event => {
             let iterations = 0;
@@ -192,13 +195,14 @@
             }
 
             iterations += 1 / 3;
-            }, 30); // Čas intervalu
+            }, 30); //CZ: Čas intervalu //EN: Time of the interval
         };
     });
 </script>
 
 <script>
-    // Efekt mixování písmenek na h2 (kratší)
+    //EN: Effect for mixing letter on h2 (shorter)
+    //CZ: Efekt mixování písmenek na h2 (kratší)
     document.querySelectorAll("h2").forEach(button => {
         button.onmouseover = event => {
             let iterations = 0;
@@ -220,7 +224,7 @@
             }
 
             iterations += 1 / 3;
-            }, 17); // Čas intervalu
+            }, 17); //CZ: Čas intervalu //EN: Time of the interval
         };
     });
 </script>
