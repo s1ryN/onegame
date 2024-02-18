@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Základní nastavení na UTF-8, připojení ral.css (registerandlogin.css) a fontu Space Mono, nastavení title a připojení ikon a viewportu pro resposivní design -->
-  <link rel="stylesheet" type="text/css" href="ral.css">
-  <title>OneGame | Registration</title>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--EN: Default setup to UFT-8 and viewportu for responsive desing, 
+        connection of ral.css, Space Mono font and Google recaptcha, setup of the title for the page-->
+    <!--CZ: Základní nastavení na UTF-8 a viewportu pro responsivní design, 
+        připojení index.css, fontu Space Mono a Google recaptchy, nastavení title pro stránku-->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="ral.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        <title>OneGame | Registration</title>
 </head>
 <body>
-  <!-- Logo s obrázkem pro redirect na index.html -->
+  <!--EN: Logo that redirects to index.html-->
+  <!--CZ: Logo, které odkazuje na index.html-->
   <div class="logo">
     <a href="index.html" class="linkage">
       <img src="images/Onegame.png" alt="Logo" class="image-container" draggable="false" oncontextmenu="return true;">
     </a>
   </div>
-  <!-- Formulář pro registraci uživatele (jméno, email, heslo, recaptcha (verifikaci recaptchi zařizuje backend (express framework)))-->
+  <!--EN: Form for registration of the user-->
+  <!--CZ: Formulář pro registraci uživatele-->
   <div class="container">
     <div class="form">
       <form method="post" id="form" action="http://localhost:3000/register.html">
@@ -29,17 +34,19 @@
       <input type="password" id="password" name="password" required placeholder="Atleast 6 symbols">
       <div class="g-recaptcha" data-sitekey="6Le25nIoAAAAAFyEkChVXQoMoIR_bT9MRfl1CND6"></div>
       <input type="submit" value="Register" data-value="Register">
+      </form>
     </div>
-    <!-- Případný redirect na login.html pokud má již uživatel účet -->
-      <div class="acc">
-          <p><small>Already have an account? <a href="login.html" class="link-style">Login</a></small></p>
-      </div>
-      <div class="tos">
-          <p><small>By signing up, you agree to the <a href="tos.html" class="link-style">Terms of Service</a> and <a href="pp.html" class="link-style">Privacy Policy</a>, including Cookie Use.</small></p>
-      </div>
-    </form>
+      <!--EN: Redirect to login.html if the user does have an account-->
+      <!--CZ: Redirect na login.html pokud má uživatel účet -->
+    <div class="acc">
+      <p><small>Already have an account? <a href="login.html" class="link-style">Login</a></small></p>
+    </div>
+    <div class="tos">
+      <p><small>By signing up, you agree to the <a href="tos.html" class="link-style">Terms of Service</a> and <a href="pp.html" class="link-style">Privacy Policy</a>, including Cookie Use.</small></p>
+    </div>
   </div>
-  <!-- Boční odbočky na stránky (zbytečné, možná ve finálním projektu budou)-->
+  <!--EN: Footer with link to more important info -->
+  <!--CZ: Footer s odkazy na další důležité info-->
   <footer class="footer">
     <small><a href="about.html" class="link-style">About</a></small>
     <small><a href="tos.html" class="link-style">Terms of Service</a></small>
@@ -48,10 +55,10 @@
     <small><a href="support.html" class="link-style">Support</a></small>
     <small><a>© 2023 OneGame.gg</a></small>
   </footer>
-</div>
 </body>
 <script>
-    //Skript pro kontrolu délky zadaného uživatelského jména a jeho omezení na 20 znaků
+    //EN: Script for controlling the lenght of username and a limit to 20 letters
+    //CZ: Skript pro kontrolu délky uživatelského jména a omezení na 20 znaků
     document.addEventListener('DOMContentLoaded', function() {
       var usernameInput = document.getElementById("username");
       var countElement = document.getElementById("usernameCount");
