@@ -1,3 +1,5 @@
+/*EN: CSS is a mess and it is impossible to comments most of these things, because they are simply just too easy to understand or there is nothing to say*/
+/*CZ: CSS je border a je nemožné vytvářet komentáře pro většinu věcí, protože jsou jednoduše až moc jednoduché na pochopení nebo k ním není co říct*/
 body {
     font-family: "Space Mono", monospace;
     margin: 0;
@@ -5,7 +7,7 @@ body {
     background: black;
     height: 100vh;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
@@ -14,9 +16,9 @@ body {
     background-color: white;
     padding: 20px;
     border-radius: 25px;
-    width: 300px;
+    max-width: 300px; 
     box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
-    position: relative; /* Added position relative */
+    position: relative; 
 }
 
 .logo img {
@@ -32,21 +34,20 @@ label {
     margin-bottom: 5px;
 }
 
-input[type="text"], input[type="email"], input[type="password"] {
+input[type="text"],
+input[type="email"],
+input[type="password"] {
     margin-bottom: 30px;
     padding: 8px;
     border-radius: 1px;
-    border-color: grey;
     border: 1px solid #ddd;
-    position: relative; /* Added position relative */
 }
 
 .char-count {
     position: absolute;
-    top: 65px;
+    top: 55px; 
     right: 30px;
-    transform: translateY(-50%);
-    color: black; /* Set the color to white or your desired color */
+    color: black; 
 }
 
 input[type="submit"] {
@@ -66,14 +67,14 @@ input[type="submit"] {
 .tos {
     color: grey;
     margin-top: 0px;
-    text-decoration: none; 
+    text-decoration: none;
 }
 
 .container a,
 .acc a,
 .tos a {
-    text-decoration: none; 
-    color: rgb(28, 105, 194); 
+    text-decoration: none;
+    color: rgb(28, 105, 194);
 }
 
 .g-recaptcha {
@@ -84,14 +85,55 @@ input[type="submit"] {
     background-color: black;
     color: white;
     text-align: center;
-    padding: 10px 0px;
+    padding: 10px 0;
     position: absolute;
     bottom: 0;
-    width: 100%;
+    width: 100%; 
 }
 
 .footer a {
-    text-decoration: none; 
-    color: #555555; 
+    text-decoration: none;
+    color: #555555;
     margin-right: 20px;
+}
+
+/*EN: Responsive design for most mobile devices, tablets or any other devices with a screen smaller than 1920x1080*/
+/*CZ: Responsivní design pro většinu mobilních zařízení, tabletu nebo jiných zařízení s menší obrazovkou než 1920x1080*/
+@media screen and (max-width: 768px) {
+    .container {
+        width: 90%; 
+        padding: 15px;
+    }
+
+    .logo img {
+        width: 100px; 
+    }
+
+    .char-count {
+        top: 45px;
+    }
+
+    input[type="submit"] {
+        padding: 12px; 
+    }
+}
+
+@media screen and (max-width: 480px) {
+    body {
+        font-size: 14px; 
+    }
+
+    .container {
+        width: 95%; 
+        padding: 10px;
+        border-radius: 15px;
+    }
+
+    .logo img {
+        width: 90px; 
+    }
+
+    .footer {
+        position: relative; 
+    }
 }
