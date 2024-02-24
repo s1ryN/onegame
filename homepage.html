@@ -1,263 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Basic setup with UTF-8, linking styles, Space Mono font, title, and font-awesome icons -->
     <meta charset="UTF-8">
+    <title>OneGame | Homepage</title>
     <link rel="stylesheet" type="text/css" href="homepage.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap">
     <script src="https://kit.fontawesome.com/b767968911.js" crossorigin="anonymous"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OneGame | Homepage</title>
-
-    <script>
-        // Function to detect YouTube links
-        function isYouTubeLink(text) {
-            const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-            const match = text.match(youtubeRegex);
-            return match ? match[0] : null;
-        }
-
-        // Function to get YouTube video ID
-        function getYouTubeVideoId(url) {
-            const match = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-            return match ? match[1] : null;
-        }
-
-        // Function to format post time for better readability
-        function formatPostTime(postTime) {
-            const date = new Date(postTime);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const seconds = String(date.getSeconds()).padStart(2, '0');
-
-            return `${day}.${month}.${year} at ${hours}:${minutes}:${seconds}`;
-        }
-
-        // Function to display comments for a post
-        function displayComments(postId) {
-            const commentsSection = document.getElementById(`comments-${postId}`);
-            commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
-
-            // Get and display comments from the database
-            if (commentsSection.style.display === 'block') {
-                fetchComments(postId);
-            }
-        }
-
-        // Function to toggle comments form visibility
-        function toggleCommentsForm(postId) {
-            const commentsForm = document.getElementById(`comment-form-${postId}`);
-            commentsForm.style.display = commentsForm.style.display === 'block' ? 'none' : 'block';
-        }
-
-        // Function to post a comment
-        function postComment(postId) {
-            const commentText = document.getElementById(`comment-text-${postId}`).value;
-
-            // Send comments to the backend server and database
-            fetch('/api/comments', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ postId, commentText }),
-            })
-            .then(response => response.json())
-            .then(response => {
-                if (response.success) {
-                    console.log('Comment posted successfully');
-                    toggleCommentsForm(postId);
-                    fetchComments(postId);
-                } else {
-                    console.error('Error posting comment:', response.error);
-                }
-            })
-            .catch(error => console.error('Error posting comment:', error));
-        }
-
-        // Function to fetch comments from the database
-        function fetchComments(postId) {
-            fetch(`/api/comments?postId=${postId}`)
-                .then(response => response.json())
-                .then(comments => {
-                    const commentsSection = document.getElementById(`comments-${postId}`);
-                    commentsSection.innerHTML = '';
-
-                    comments.forEach(comment => {
-                        const commentElement = document.createElement('div');
-                        commentElement.classList.add('comment');
-                        commentElement.innerHTML = `<p><strong>${comment.username}</strong>: ${comment.comment}</p>`;
-                        commentsSection.appendChild(commentElement);
-                    });
-                })
-                .catch(error => console.error('Error fetching comments:', error));
-        }
-
-        let page = 1;
-let postsContainer;
-
-document.addEventListener("DOMContentLoaded", function() {
-    postsContainer = document.getElementById('posts');
-});
-
-        // Function to fetch more posts when scrolling on the homepage
-        function fetchPosts() {
-            fetch(`/api/posts?page=${page}`)
-                .then(response => response.json())
-                .then(posts => {
-                    if (posts.length > 0) {
-                        renderPosts(posts);
-                        page++;
-                    }
-                })
-                .catch(error => console.error('Error fetching posts:', error));
-        }
-
-        // Function to render posts
-        function renderPosts(posts) {
-            if (posts && posts.length > 0) {
-                posts.forEach(post => {
-                    const postElement = document.createElement('div');
-                    postElement.classList.add('post');
-
-                    postElement.innerHTML = `
-                        <p><strong>${post.username}</strong></p>
-                        <p>${post.content}</p>
-                        ${post.media_url ? `<img src="/uploads/${post.media_url}" alt="Post Media">` : ''}
-                        <p><em>Posted on ${formatPostTime(post.post_time)}</em></p>
-                        <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
-                        <button class="like-button" data-post-id="${post.id}"><i class="fa-regular fa-heart"></i> Like</button>
-                        <button class="comments-button" data-post-id="${post.id}" onclick="toggleCommentsForm(${post.id})"><i class="fa-regular fa-comment"></i> Comments</button>
-                        <div id="comments-${post.id}" class="comments-section">
-                            <form id="comment-form-${post.id}" class="comment-form" style="display:none;">
-                                <textarea id="comment-text-${post.id}" placeholder="Write a comment" required></textarea>
-                                <button type="button" onclick="postComment(${post.id})">Post Comment</button>
-                            </form>
-                        </div>
-                    `;
-
-                    postsContainer.appendChild(postElement);
-                });
-
-                // Like button logic
-                document.querySelectorAll('.like-button').forEach(button => {
-                    const newButton = button.cloneNode(true);
-                    button.parentNode.replaceChild(newButton, button);
-
-                    newButton.addEventListener('click', function() {
-                        this.disabled = true;
-
-                        const postId = newButton.dataset.postId;
-                        const isRemoveLike = this.dataset.liked === 'true';
-
-                        fetch(isRemoveLike ? '/unlike' : '/like', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ postId }),
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                const likeCountElement = document.getElementById(`like-count-${postId}`);
-                                likeCountElement.textContent = parseInt(likeCountElement.textContent) + (isRemoveLike ? -1 : 1);
-                                this.dataset.liked = isRemoveLike ? 'false' : 'true';
-                                this.innerHTML = isRemoveLike ? '<i class="fa-regular fa-heart"></i> Like' : '<i class="fa-solid fa-heart"></i> Like';
-                                this.classList.toggle('liked');
-                            } else {
-                                console.error('Error updating like:', response.statusText);
-                            }
-                            this.disabled = false;
-                        })
-                        .catch(error => {
-                            console.error('Error updating like:', error);
-                            this.disabled = false;
-                        });
-                    });
-                });
-            }
-        }
-
-        // Function to check if the user is at the bottom of the page
-        function isAtBottom() {
-            return window.innerHeight + window.scrollY >= document.body.offsetHeight;
-        }
-
-        // Event listener for scrolling
-        window.addEventListener('scroll', () => {
-            if (isAtBottom()) {
-                fetchPosts();
-            }
-        });
-
-        // Initial fetch of posts
-        fetchPosts();
-
-        function renderMedia(mediaUrl, postId) {
-    console.log('Rendering media for postId:', postId, 'with mediaUrl:', mediaUrl);
-
-    const baseMediaUrl = '/uploads/';
-    const fullMediaUrl = `${baseMediaUrl}${mediaUrl}`;
-
-    const fileExtension = mediaUrl.split('.').pop().toLowerCase();
-    if (fileExtension === 'mp4' || fileExtension === 'webm') {
-        return `<video controls><source src="${fullMediaUrl}" type="video/mp4"></video>`;
-    } else if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif') {
-        return `<img src="${fullMediaUrl}" alt="Post Media">`;
-    } else if (isYouTubeLink(mediaUrl)) {
-        const videoId = getYouTubeVideoId(mediaUrl);
-        return `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
-    } else {
-        return 'Unsupported media type';
-    }
-}
-
-        // Function to handle post likes
-        function handleLike(postId) {
-            fetch('/like', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ postId: postId }),
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Like successful');
-                } else {
-                    console.error('Error liking post:', response.statusText);
-                }
-            })
-            .catch(error => console.error('Error liking post:', error));
-        }
-    </script>
 </head>
 <body>
-    <!-- Header with the site logo linking to homepage.html -->
     <div class="header">
         <a href="homepage.html">
             <img src="images/Onegame.png" alt="Logo" class="logo" draggable="false">
         </a>
     </div>
 
-    <!-- Form for posting -->
     <div id="post-form">
         <form action="/post" method="post" id="post" enctype="multipart/form-data">
-            <!-- Text content of the post -->
             <textarea name="content" id="post-text" placeholder="What's on your mind?" required></textarea>
-            <!-- Media content of the post -->
             <input type="file" name="media_url" id="post-image" accept="image/*, video/*">
-            <!-- Icon for adding media content -->
             <label for="post-image" id="post-image-label" class="image-icon"><i class="fa-solid fa-images"></i>Add Image</label>
-            <!-- Button for posting the post -->
             <button type="submit">Post</button>
         </form>
     </div>
 
-    <!-- Section for displaying posts -->
     <div id="posts"></div>
+
+    <script>
+        let isFetching = false;
+        let allPostsLoaded = false;
+        let page = 1;
+        let postsContainer = document.getElementById('posts');
+
+        function isYouTubeLink(text) {
+            if (typeof text !== 'string') return false;
+            const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            const match = text.match(youtubeRegex);
+            return match ? match[0] : null;
+        }
+
+        function getYouTubeVideoId(url) {
+            const match = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            return match ? match[1] : null;
+        }
+
+        function formatPostTime(postTime) {
+            const date = new Date(postTime);
+            return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()} at ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+        }
+
+        function throttle(func, limit) {
+            let lastFunc;
+            let lastRan;
+            return function() {
+                const context = this;
+                const args = arguments;
+                if (!lastRan) {
+                    func.apply(context, args);
+                    lastRan = Date.now();
+                } else {
+                    clearTimeout(lastFunc);
+                    lastFunc = setTimeout(function() {
+                        if ((Date.now() - lastRan) >= limit) {
+                            func.apply(context, args);
+                            lastRan = Date.now();
+                        }
+                    }, limit - (Date.now() - lastRan));
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchPosts();
+            window.addEventListener('scroll', throttle(() => {
+                if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 && !isFetching && !allPostsLoaded) {
+                    fetchPosts();
+                }
+            }, 200));
+        });
+
+        function fetchPosts() {
+            if (isFetching || allPostsLoaded) return;
+            isFetching = true;
+            fetch(`/api/posts?page=${page}`)
+                .then(response => response.json())
+                .then(posts => {
+                    if (posts.length > 0) {
+                        renderPosts(posts);
+                        page++;
+                    } else {
+                        allPostsLoaded = true;
+                    }
+                })
+                .catch(error => console.error('Error fetching posts:', error))
+                .finally(() => isFetching = false);
+        }
+
+        function renderPosts(posts) {
+            posts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.classList.add('post');
+
+                let mediaContent = '';
+                if (isYouTubeLink(post.media_url)) {
+                    const videoId = getYouTubeVideoId(post.media_url);
+                    mediaContent = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+                } else if (post.media_url) {
+                    mediaContent = `<img src="/uploads/${post.media_url}" alt="Post Media">`;
+                }
+
+                postElement.innerHTML = `
+                    <p><strong>${post.username}</strong></p>
+                    <p>${post.content}</p>
+                    ${mediaContent}
+                    <p><em>Posted on ${formatPostTime(post.post_time)}</em></p>
+                    <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
+                    <button class="like-button" data-post-id="${post.id}" onclick="handleLike(${post.id})"><i class="fa-regular fa-heart"></i> Like</button>
+                    <div id="comments-${post.id}" class="comments-section" style="display:none;"></div>
+                `;
+
+                postsContainer.appendChild(postElement);
+            });
+        }
+
+        function handleLike(postId) {
+        const likeButton = document.querySelector(`button[data-post-id="${postId}"]`);
+        const likeCountElement = document.getElementById(`like-count-${postId}`);
+        let likeCount = parseInt(likeCountElement.innerText);
+        
+        // Determine the current state based on button class
+        const isLiked = likeButton.classList.contains('liked');
+        
+        // Optimistically update UI
+        if (isLiked) {
+            likeCount = Math.max(0, likeCount - 1); // Prevent -1 count
+            likeButton.classList.remove('liked');
+            likeButton.innerHTML = '<i class="fa-regular fa-heart"></i> Like'; // Outline heart
+        } else {
+            likeCount += 1;
+            likeButton.classList.add('liked');
+            likeButton.innerHTML = '<i class="fa-solid fa-heart"></i> Liked'; // Filled heart
+        }
+        likeCountElement.innerText = likeCount;
+
+        // Async request to update like status on the server
+        fetch(isLiked ? '/unlike' : '/like', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ postId: postId }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                // Server-side failure, revert UI changes
+                likeButton.classList.toggle('liked');
+                likeCountElement.innerText = isLiked ? likeCount + 1 : likeCount - 1;
+                likeButton.innerHTML = isLiked ? '<i class="fa-solid fa-heart"></i> Liked' : '<i class="fa-regular fa-heart"></i> Like';
+            }
+        })
+        .catch(error => {
+            console.error('Error liking/unliking post:', error);
+            // On error, revert UI changes
+            likeButton.classList.toggle('liked');
+            likeCountElement.innerText = isLiked ? likeCount + 1 : likeCount - 1;
+            likeButton.innerHTML = isLiked ? '<i class="fa-solid fa-heart"></i> Liked' : '<i class="fa-regular fa-heart"></i> Like';
+        });
+    }
+
+    </script>
 </body>
 </html>

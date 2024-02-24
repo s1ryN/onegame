@@ -129,37 +129,27 @@
     },
   });
 
-  const uploadWithStorage = multer({ storage: storage });
+const uploadWithStorage = multer({ storage: storage });
 
-  function isYouTubeLink(text) {
-    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = text.match(youtubeRegex);
-    return match ? match[0] : null;
-}
-
-// Function to get YouTube video ID
-function getYouTubeVideoId(url) {
-    const match = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-    return match ? match[1] : null;
+function isYouTubeLink(text) {
+  const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = text.match(youtubeRegex);
+  return match ? match[0] : null;
 }
 
   app.post('/post', uploadWithStorage.single('media_url'), async (req, res) => {
-    // Check if the user is logged in
     if (!req.session.userId) {
       req.flash('error', 'Please log in to post.');
       return res.redirect('/login.html');
     }
-  
-    // Fetch user information from the session
+
     const userId = req.session.userId;
-  
-    // Create postData object
+
     let postData = {
       user_id: userId,
       content: req.body.content,
     };
   
-    // Function to insert post and optionally link it with media
     const insertPostAndMedia = (mediaUrl = null) => {
       con.query('INSERT INTO posts SET ?', postData, (postError, postResults) => {
         if (postError) {
@@ -168,7 +158,6 @@ function getYouTubeVideoId(url) {
           return res.redirect('/homepage.html');
         }
   
-        // If there's a mediaUrl, insert it into the media table and link it to the post
         if (mediaUrl) {
           con.query('INSERT INTO media SET ?', { media_url: mediaUrl }, (mediaError, mediaResults) => {
             if (mediaError) {
@@ -177,7 +166,6 @@ function getYouTubeVideoId(url) {
               return res.redirect('/homepage.html');
             }
   
-            // Link the media to the post
             const postMediaData = {
               post_id: postResults.insertId,
               media_id: mediaResults.insertId,
@@ -188,28 +176,22 @@ function getYouTubeVideoId(url) {
                 req.flash('error', 'Error occurred during media-linking.');
               }
   
-              // Redirect to homepage after successful post and media insertion
               return res.redirect('/homepage.html');
             });
           });
         } else {
-          // Redirect to homepage after successful post insertion (no media to link)
           return res.redirect('/homepage.html');
         }
       });
     };
   
-    // Check if the content is a YouTube link
     const youtubeLink = isYouTubeLink(req.body.content);
     if (youtubeLink) {
-      // Process post with YouTube link
       insertPostAndMedia(youtubeLink);
     } else if (req.file) {
-      // Process post with uploaded media
-      const mediaUrl = `${req.file.filename}`; // Adjust the path as needed
+      const mediaUrl = `${req.file.filename}`; 
       insertPostAndMedia(mediaUrl);
     } else {
-      // Process post without media
       insertPostAndMedia();
     }
   });
@@ -318,110 +300,85 @@ function getYouTubeVideoId(url) {
   let isLiking = {};
 
   app.post('/like', (req, res) => {
-    const postId = req.body.postId;
+    if (!req.session.userId) {
+        return res.status(403).json({ success: false, message: 'Not logged in' });
+    }
+
+    const { postId } = req.body;
     const userId = req.session.userId;
 
-    if (!req.session.userId) {
-      return res.redirect('/login.html');
+    // Avoid processing duplicate likes
+    if (isLiking[`${userId}-${postId}`]) {
+        return res.status(400).json({ success: false, message: 'Already processing like' });
     }
 
-    console.log('postId:', postId);
-    console.log('userId:', userId);
+    isLiking[`${userId}-${postId}`] = true;
 
-    // Check if the user is already liking the post
-    if (isLiking[userId + '-' + postId]) {
-      return res.status(400).json({ error: 'Already processing like' });
-    }
-
-    isLiking[userId + '-' + postId] = true;
-
-    // Check if the user has already liked the post
+    // Check if already liked
     con.query('SELECT * FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (error, results) => {
-      if (error) {
-        console.error('Error checking existing like:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        if (results.length === 0) {
-          // If the user hasn't liked the post yet, proceed to like
-          con.query('UPDATE posts SET like_count = like_count + 1 WHERE id = ?', [postId], (updateError) => {
-            if (updateError) {
-              console.error('Error updating like count:', updateError);
-              res.status(500).json({ error: 'Internal Server Error' });
-            } else {
-              // Insert a record in the reactions table
-              con.query('INSERT INTO reactions (post_id, user_id) VALUES (?, ?)', [postId, userId], (insertError) => {
-                if (insertError) {
-                  console.error('Error inserting like record:', insertError);
-                  res.status(500).json({ error: 'Internal Server Error' });
-                } else {
-                  res.sendStatus(200); // Like successful
-                }
-              });
-            }
-          });
-        } else {
-          // User has already liked the post, you can handle this case as needed
-          res.status(400).json({ error: 'User has already liked the post' });
+        if (error || results.length > 0) {
+            delete isLiking[`${userId}-${postId}`];
+            return res.status(400).json({ success: false, message: 'Already liked or database error' });
         }
-      }
 
-      // Release the lock
-      delete isLiking[userId + '-' + postId];
+        // Update post like count and insert into reactions table
+        con.query('UPDATE posts SET like_count = like_count + 1 WHERE id = ?', [postId], (updateError) => {
+            if (updateError) {
+                delete isLiking[`${userId}-${postId}`];
+                return res.status(500).json({ success: false, message: 'Error updating like count' });
+            }
+
+            con.query('INSERT INTO reactions (post_id, user_id) VALUES (?, ?)', [postId, userId], (insertError) => {
+                delete isLiking[`${userId}-${postId}`];
+                if (insertError) {
+                    return res.status(500).json({ success: false, message: 'Error recording like' });
+                }
+                res.json({ success: true });
+            });
+        });
     });
-  });
-
+});
 
   let isUnliking = {};
 
   app.post('/unlike', (req, res) => {
-    const postId = req.body.postId;
+    if (!req.session.userId) {
+        return res.status(403).json({ success: false, message: 'Not logged in' });
+    }
+
+    const { postId } = req.body;
     const userId = req.session.userId;
 
-    if (!req.session.userId) {
-      return res.redirect('/login.html');
+    if (isUnliking[`${userId}-${postId}`]) {
+        return res.status(400).json({ success: false, message: 'Already processing unlike' });
     }
 
-    // Check if the user is already unliking the post
-    if (isUnliking[userId + '-' + postId]) {
-      return res.status(400).json({ error: 'Already processing unlike' });
-    }
+    isUnliking[`${userId}-${postId}`] = true;
 
-    isUnliking[userId + '-' + postId] = true;
-
-    // Check if the user has already liked the post
+    // Ensure the user has liked the post before
     con.query('SELECT * FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (error, results) => {
-      if (error) {
-        console.error('Error checking existing like:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        if (results.length > 0) {
-          // If the user has liked the post, proceed to unlike
-          con.query('UPDATE posts SET like_count = like_count - 1 WHERE id = ?', [postId], (updateError) => {
-            if (updateError) {
-              console.error('Error updating like count:', updateError);
-              res.status(500).json({ error: 'Internal Server Error' });
-            } else {
-              // Delete the record from the reactions table
-              con.query('DELETE FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (deleteError) => {
-                if (deleteError) {
-                  console.error('Error deleting like record:', deleteError);
-                  res.status(500).json({ error: 'Internal Server Error' });
-                } else {
-                  res.sendStatus(200); // Unlike successful
-                }
-              });
-            }
-          });
-        } else {
-          // User hasn't liked the post, you can handle this case as needed
-          res.status(400).json({ error: 'User has not liked the post' });
+        if (error || results.length === 0) {
+            delete isUnliking[`${userId}-${postId}`];
+            return res.status(400).json({ success: false, message: 'Not liked or database error' });
         }
-      }
 
-      // Release the lock
-      delete isUnliking[userId + '-' + postId];
+        // Update post like count and remove from reactions table
+        con.query('UPDATE posts SET like_count = like_count - 1 WHERE id = ?', [postId], (updateError) => {
+            if (updateError) {
+                delete isUnliking[`${userId}-${postId}`];
+                return res.status(500).json({ success: false, message: 'Error updating like count' });
+            }
+
+            con.query('DELETE FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (deleteError) => {
+                delete isUnliking[`${userId}-${postId}`];
+                if (deleteError) {
+                    return res.status(500).json({ success: false, message: 'Error removing like' });
+                }
+                res.json({ success: true });
+            });
+        });
     });
-  });
+});
 
   app.post('/comment', async (req, res) => {
     // Check if the user is logged in
