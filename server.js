@@ -199,7 +199,7 @@ function isYouTubeLink(text) {
   app.get('/homepage', async (req, res) => {
     try {
       // Fetch posts from the database
-      const posts = await getPostsFromDatabase();
+      const posts = await getPostsFromDatabaseWithLikeStatus();
 
       // Build the HTML content
       let htmlContent = '<div id="posts">';
@@ -242,16 +242,22 @@ function isYouTubeLink(text) {
   }
 
   app.get('/api/posts', async (req, res) => {
-    const page = req.query.page || 1; // Get the page parameter from the request query
+    const page = parseInt(req.query.page) || 1;
+    const userId = req.session.userId;
+
+    if (!userId) {
+        return res.status(403).json({ message: "User not logged in" });
+    }
 
     try {
-      const posts = await getPostsFromDatabase(page);
-      res.json(posts);
+        const posts = await getPostsFromDatabaseWithLikeStatus(userId, page);
+        res.json(posts);
     } catch (error) {
-      console.error('Error fetching posts:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error fetching posts:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-  });
+});
+
 
   // Function to get posts from the database with pagination
   async function getPostsFromDatabase(page) {
@@ -443,18 +449,31 @@ function isYouTubeLink(text) {
     });
   }
 
-  // Helper function to get a user's reaction to a post
-  function getReaction(postId, userId) {
+  async function getPostsFromDatabaseWithLikeStatus(userId, page) {
+    const perPage = 10; // Adjust based on your pagination settings
+    const offset = (page - 1) * perPage;
+
     return new Promise((resolve, reject) => {
-      con.query('SELECT * FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (error, results) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(results[0]);
-        }
-      });
+        const query = `
+            SELECT posts.*, users.username, media.media_url,
+                   IF(reactions.user_id IS NULL, 0, 1) AS liked
+            FROM posts
+            LEFT JOIN users ON posts.user_id = users.id
+            LEFT JOIN post_media ON posts.id = post_media.post_id
+            LEFT JOIN media ON post_media.media_id = media.id
+            LEFT JOIN reactions ON posts.id = reactions.post_id AND reactions.user_id = ?
+            ORDER BY posts.post_time DESC
+            LIMIT ? OFFSET ?`;
+
+        con.query(query, [userId, perPage, offset], (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
     });
-  }
+}
 
   // Start the server
   app.listen(3000, () => {

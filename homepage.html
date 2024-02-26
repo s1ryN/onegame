@@ -97,77 +97,105 @@
         }
 
         function renderPosts(posts) {
-            posts.forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.classList.add('post');
+    posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.classList.add('post');
 
-                let mediaContent = '';
-                if (isYouTubeLink(post.media_url)) {
-                    const videoId = getYouTubeVideoId(post.media_url);
-                    mediaContent = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
-                } else if (post.media_url) {
-                    mediaContent = `<img src="/uploads/${post.media_url}" alt="Post Media">`;
-                }
-
-                postElement.innerHTML = `
-                    <p><strong>${post.username}</strong></p>
-                    <p>${post.content}</p>
-                    ${mediaContent}
-                    <p><em>Posted on ${formatPostTime(post.post_time)}</em></p>
-                    <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
-                    <button class="like-button" data-post-id="${post.id}" onclick="handleLike(${post.id})"><i class="fa-regular fa-heart"></i> Like</button>
-                    <div id="comments-${post.id}" class="comments-section" style="display:none;"></div>
-                `;
-
-                postsContainer.appendChild(postElement);
-            });
+        let mediaContent = '';
+        if (isYouTubeLink(post.media_url)) {
+            const videoId = getYouTubeVideoId(post.media_url);
+            mediaContent = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+        } else if (post.media_url) {
+            mediaContent = `<img src="/uploads/${post.media_url}" alt="Post Media">`;
         }
 
-        function handleLike(postId) {
-        const likeButton = document.querySelector(`button[data-post-id="${postId}"]`);
-        const likeCountElement = document.getElementById(`like-count-${postId}`);
-        let likeCount = parseInt(likeCountElement.innerText);
-        
-        // Determine the current state based on button class
-        const isLiked = likeButton.classList.contains('liked');
-        
-        // Optimistically update UI
-        if (isLiked) {
-            likeCount = Math.max(0, likeCount - 1); // Prevent -1 count
-            likeButton.classList.remove('liked');
-            likeButton.innerHTML = '<i class="fa-regular fa-heart"></i> Like'; // Outline heart
-        } else {
-            likeCount += 1;
-            likeButton.classList.add('liked');
-            likeButton.innerHTML = '<i class="fa-solid fa-heart"></i> Liked'; // Filled heart
-        }
-        likeCountElement.innerText = likeCount;
+        // Update like button based on like status
+        const likeButtonClass = post.liked ? 'like-button liked' : 'like-button';
+        const likeIcon = post.liked ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+        const likeText = post.liked ? 'Liked' : 'Like';
 
-        // Async request to update like status on the server
-        fetch(isLiked ? '/unlike' : '/like', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ postId: postId }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) {
-                // Server-side failure, revert UI changes
-                likeButton.classList.toggle('liked');
-                likeCountElement.innerText = isLiked ? likeCount + 1 : likeCount - 1;
-                likeButton.innerHTML = isLiked ? '<i class="fa-solid fa-heart"></i> Liked' : '<i class="fa-regular fa-heart"></i> Like';
-            }
-        })
-        .catch(error => {
-            console.error('Error liking/unliking post:', error);
-            // On error, revert UI changes
-            likeButton.classList.toggle('liked');
-            likeCountElement.innerText = isLiked ? likeCount + 1 : likeCount - 1;
-            likeButton.innerHTML = isLiked ? '<i class="fa-solid fa-heart"></i> Liked' : '<i class="fa-regular fa-heart"></i> Like';
-        });
+        postElement.innerHTML = `
+            <p><strong>${post.username}</strong></p>
+            <p>${post.content}</p>
+            ${mediaContent}
+            <p><em>Posted on ${formatPostTime(post.post_time)}</em></p>
+            <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
+            <button class="${likeButtonClass}" data-post-id="${post.id}" onclick="handleLike(${post.id}, ${post.liked})"><i class="${likeIcon}"></i> ${likeText}</button>
+            <div id="comments-${post.id}" class="comments-section" style="display:none;"></div>
+        `;
+
+        postsContainer.appendChild(postElement);
+    });
+}
+
+function handleLike(postId, initiallyLiked) {
+    const likeButton = document.querySelector(`button[data-post-id="${postId}"]`);
+    const likeCountElement = document.getElementById(`like-count-${postId}`);
+    let likeCount = parseInt(likeCountElement.innerText, 10);
+    const isLiked = likeButton.classList.contains('liked');
+    
+    // Optimistically toggle UI
+    likeButton.disabled = true;
+    if (isLiked) {
+        likeCount = Math.max(0, likeCount - 1); // Avoid negative counts
+        likeButton.classList.remove('liked');
+        likeButton.innerHTML = `<i class="fa-regular fa-heart"></i> Like`;
+    } else {
+        likeCount += 1;
+        likeButton.classList.add('liked');
+        likeButton.innerHTML = `<i class="fa-solid fa-heart"></i> Liked`;
     }
+    likeCountElement.innerText = likeCount;
+
+    // Determine the action based on the initial state
+    const action = initiallyLiked ? 'unlike' : 'like';
+
+    // Send the request to the server
+    fetch(`/${action}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ postId: postId }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to update like status');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (!data.success) {
+            // Revert UI changes on failure
+            toggleLikeUI(likeButton, likeCountElement, initiallyLiked, likeCount);
+        } else {
+            // Update the onclick attribute to reflect the new state
+            likeButton.setAttribute('onclick', `handleLike(${postId}, ${!initiallyLiked})`);
+        }
+    })
+    .catch(error => {
+        console.error('Error liking/unliking post:', error);
+        // Revert UI changes on error
+        toggleLikeUI(likeButton, likeCountElement, initiallyLiked, likeCount);
+    })
+    .finally(() => {
+        likeButton.disabled = false;
+    });
+}
+
+
+// Helper function to toggle like UI
+function toggleLikeUI(likeButton, likeCountElement, isLiked, likeCount) {
+    if (isLiked) {
+        likeButton.classList.add('liked');
+        likeButton.innerHTML = `<i class="fa-solid fa-heart"></i> Liked`;
+    } else {
+        likeButton.classList.remove('liked');
+        likeButton.innerHTML = `<i class="fa-regular fa-heart"></i> Like`;
+    }
+    likeCountElement.innerText = likeCount;
+}
+
 
     </script>
 </body>
