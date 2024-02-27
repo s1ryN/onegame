@@ -1,40 +1,39 @@
-  const express = require('express');
-  const session = require('express-session');
-  const flash = require('express-flash');
-  const mysql = require('mysql');
-  const cors = require('cors');
-  const bodyParser = require('body-parser');
-  const dotenv = require('dotenv').config();
-  const bcrypt = require('bcrypt');
-  const { check, validationResult } = require('express-validator');
-  const Recaptcha = require('express-recaptcha').RecaptchaV2;
-  const path = require('path');
-  const axios = require('axios');
-  const multer = require('multer');
+const express = require('express');
+const session = require('express-session');
+const flash = require('express-flash');
+const mysql = require('mysql');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv').config();
+const bcrypt = require('bcrypt');
+const { check, validationResult } = require('express-validator');
+const Recaptcha = require('express-recaptcha').RecaptchaV2;
+const path = require('path');
+const axios = require('axios');
+const multer = require('multer');
 
-  const app = express();
-  const recaptcha = new Recaptcha(
-    '6Le25nIoAAAAAFyEkChVXQoMoIR_bT9MRfl1CND6',
-    '6Le25nIoAAAAAGCFxyqsZDxktD1yLRsCRXjaJG9D'
-  );
+const app = express();
+const secretKey = process.env.MY_APP_SECRET_KEY;
+const recaptcha = new Recaptcha(
+  '6Le25nIoAAAAAFyEkChVXQoMoIR_bT9MRfl1CND6',
+  '6Le25nIoAAAAAGCFxyqsZDxktD1yLRsCRXjaJG9D'
+);
 
-  app.use(flash());
-  app.use(cors());
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(bodyParser.json());
-  app.use(express.static(__dirname));
-  app.set('view engine', 'ejs');
-  app.set('views', path.join(__dirname, 'views'));
-  app.use('/uploads', express.static('uploads'));  
+app.use(flash());
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static(__dirname));
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use('/uploads', express.static('uploads'));  
 
-  const secretKey = process.env.MY_APP_SECRET_KEY;
-
-  const con = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-  });
+const con = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+});
 
   con.connect(function (err) {
     if (err) throw err;
@@ -48,6 +47,7 @@
       saveUninitialized: true,
     })
   );
+  
 
   app.post('/register.html', [
     recaptcha.middleware.verify,
@@ -415,6 +415,16 @@ function isYouTubeLink(text) {
         req.flash('success', 'Comment submitted successfully');
         return res.redirect('/homepage.html');
       }
+    });
+  });
+
+
+  app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.log('Error logging out:', err);
+        }
+        res.redirect('/login.html'); // Redirect to login page after logout
     });
   });
 

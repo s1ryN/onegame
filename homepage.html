@@ -13,6 +13,10 @@
         <a href="homepage.html">
             <img src="images/Onegame.png" alt="Logo" class="logo" draggable="false">
         </a>
+        <button id="logoutButton" onclick="logout()" aria-label="Logout">
+            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+        </button>
+        
     </div>
 
     <div id="post-form">
@@ -31,6 +35,10 @@
         let allPostsLoaded = false;
         let page = 1;
         let postsContainer = document.getElementById('posts');
+
+        function logout() {
+            window.location.href = '/logout';
+        }
 
         function isYouTubeLink(text) {
             if (typeof text !== 'string') return false;
@@ -121,7 +129,12 @@
             <p><em>Posted on ${formatPostTime(post.post_time)}</em></p>
             <p>Likes: <span id="like-count-${post.id}">${post.like_count}</span></p>
             <button class="${likeButtonClass}" data-post-id="${post.id}" onclick="handleLike(${post.id}, ${post.liked})"><i class="${likeIcon}"></i> ${likeText}</button>
-            <div id="comments-${post.id}" class="comments-section" style="display:none;"></div>
+            <button class="comments-toggle" onclick="toggleComments(${post.id})">Show Comments</button>
+            <div id="comments-container-${post.id}" class="comments-container" style="display:none;">
+            <div id="comments-${post.id}"></div>
+            <textarea id="comment-text-${post.id}" placeholder="Add a comment..."></textarea>
+            <button onclick="postComment(${post.id})">Post Comment</button>
+            </div>
         `;
 
         postsContainer.appendChild(postElement);
@@ -194,6 +207,45 @@ function toggleLikeUI(likeButton, likeCountElement, isLiked, likeCount) {
         likeButton.innerHTML = `<i class="fa-regular fa-heart"></i> Like`;
     }
     likeCountElement.innerText = likeCount;
+}
+
+function toggleComments(postId) {
+    const container = document.getElementById(`comments-container-${postId}`);
+    container.style.display = container.style.display === 'none' ? 'block' : 'none';
+    if (container.style.display === 'block') {
+        fetchComments(postId);
+    }
+}
+
+function fetchComments(postId) {
+    fetch(`/api/comments?postId=${postId}`)
+        .then(response => response.json())
+        .then(comments => {
+            const commentsDiv = document.getElementById(`comments-${postId}`);
+            commentsDiv.innerHTML = ''; // Clear current comments
+            comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.textContent = `${comment.username}: ${comment.comment_text}`;
+                commentsDiv.appendChild(commentElement);
+            });
+        })
+        .catch(error => console.error('Error fetching comments:', error));
+}
+
+function postComment(postId) {
+    const commentText = document.getElementById(`comment-text-${postId}`).value;
+    fetch('/api/comments', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ postId, commentText }),
+    })
+        .then(response => response.json())
+        .then(() => {
+            fetchComments(postId); // Refresh comments
+        })
+        .catch(error => console.error('Error posting comment:', error));
 }
 
 

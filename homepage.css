@@ -138,3 +138,19 @@ body {
     cursor: pointer;
     transition: background-color 0.5s ease;
 }
+
+#logoutButton {
+    padding: 10px 20px;
+    background-color: white; /* Red color for logout button */
+    color: black;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.logout-button i {
+    margin-right: 5px;
+    color: black;
+    background-color: black;
+    font-size: 80px;
+}
