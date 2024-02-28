@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const flash = require('express-flash');
+const RateLimit = require('express-rate-limit');
 const mysql = require('mysql');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -18,7 +19,12 @@ const recaptcha = new Recaptcha(
   '6Le25nIoAAAAAFyEkChVXQoMoIR_bT9MRfl1CND6',
   '6Le25nIoAAAAAGCFxyqsZDxktD1yLRsCRXjaJG9D'
 );
+const limiter = RateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100, 
+});
 
+app.use(limiter);
 app.use(flash());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
