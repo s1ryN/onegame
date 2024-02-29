@@ -5,7 +5,6 @@ Current problems :
 
 1. Checking if the credentials to login are right, if wrong, sending a message to user about wrong credentials or any other error during login
 2. Sending the user to a page about successful login
-3. Posting a Youtube link completely breaks the /post function and kills the server
 4. Responsive design is finished only for index 
 5. Comments are in Czech and English, in some parts there are english comments created by ChatGPT
 6. It is my first big website project, so most things are done in a weird way
