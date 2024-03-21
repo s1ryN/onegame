@@ -204,10 +204,8 @@ function isYouTubeLink(text) {
 
   app.get('/homepage', async (req, res) => {
     try {
-      // Fetch posts from the database
       const posts = await getPostsFromDatabaseWithLikeStatus();
 
-      // Build the HTML content
       let htmlContent = '<div id="posts">';
 
       if (posts && posts.length > 0) {
@@ -226,7 +224,6 @@ function isYouTubeLink(text) {
 
       htmlContent += '</div>';
 
-      // Send the HTML content to the client
       res.send(htmlContent);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -234,7 +231,6 @@ function isYouTubeLink(text) {
     }
   });
 
-  // Function to get posts from the database
   function getPostsFromDatabase() {
     return new Promise((resolve, reject) => {
       con.query('SELECT * FROM posts ORDER BY post_time DESC', (error, results, fields) => {
@@ -265,9 +261,8 @@ function isYouTubeLink(text) {
 });
 
 
-  // Function to get posts from the database with pagination
   async function getPostsFromDatabase(page) {
-    const perPage = 10; // Adjust this value based on how many posts you want to fetch per page
+    const perPage = 10; 
     const offset = (page - 1) * perPage;
 
     return new Promise((resolve, reject) => {
@@ -296,7 +291,6 @@ function isYouTubeLink(text) {
     }
   });
 
-  // Function to get comments from the database for a specific post
   async function getCommentsFromDatabase(postId) {
     return new Promise((resolve, reject) => {
       con.query('SELECT comments.*, users.username FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ? ORDER BY comment_time', [postId], (error, results) => {
@@ -319,21 +313,18 @@ function isYouTubeLink(text) {
     const { postId } = req.body;
     const userId = req.session.userId;
 
-    // Avoid processing duplicate likes
     if (isLiking[`${userId}-${postId}`]) {
         return res.status(400).json({ success: false, message: 'Already processing like' });
     }
 
     isLiking[`${userId}-${postId}`] = true;
 
-    // Check if already liked
     con.query('SELECT * FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (error, results) => {
         if (error || results.length > 0) {
             delete isLiking[`${userId}-${postId}`];
             return res.status(400).json({ success: false, message: 'Already liked or database error' });
         }
 
-        // Update post like count and insert into reactions table
         con.query('UPDATE posts SET like_count = like_count + 1 WHERE id = ?', [postId], (updateError) => {
             if (updateError) {
                 delete isLiking[`${userId}-${postId}`];
@@ -367,14 +358,12 @@ function isYouTubeLink(text) {
 
     isUnliking[`${userId}-${postId}`] = true;
 
-    // Ensure the user has liked the post before
     con.query('SELECT * FROM reactions WHERE post_id = ? AND user_id = ?', [postId, userId], (error, results) => {
         if (error || results.length === 0) {
             delete isUnliking[`${userId}-${postId}`];
             return res.status(400).json({ success: false, message: 'Not liked or database error' });
         }
 
-        // Update post like count and remove from reactions table
         con.query('UPDATE posts SET like_count = like_count - 1 WHERE id = ?', [postId], (updateError) => {
             if (updateError) {
                 delete isUnliking[`${userId}-${postId}`];
@@ -393,25 +382,21 @@ function isYouTubeLink(text) {
 });
 
   app.post('/comment', async (req, res) => {
-    // Check if the user is logged in
     if (!req.session.userId) {
       console.log('Current session user ID:', req.session.userId);
       console.log('POST ERROR INBOUND, USER ID IS INCORRECT');
       return res.redirect('/login.html');
     }
-    // Fetch user information from the session
     const userId = req.session.userId;
     const postId = req.body.postId;
     const comment = req.body.comment;
 
-    // Create postData object with the correct user_id
     let postData = {
       user_id: userId,
       post_id: postId,
       comment: comment,
     };
 
-    // Insert post into the database
     con.query('INSERT INTO comments SET ?', postData, function (error, results, fields) {
       if (error) {
         console.error('SQL Error: ', error);
@@ -430,7 +415,7 @@ function isYouTubeLink(text) {
         if (err) {
             console.log('Error logging out:', err);
         }
-        res.redirect('/login.html'); // Redirect to login page after logout
+        res.redirect('/login.html'); 
     });
   });
 
@@ -443,7 +428,6 @@ function isYouTubeLink(text) {
     }
 
     try {
-      // Insert the comment into the database
       const result = await insertCommentIntoDatabase(userId, postId, commentText);
       res.json({ success: true, commentId: result.insertId });
     } catch (error) {
@@ -452,7 +436,6 @@ function isYouTubeLink(text) {
     }
   });
 
-  // Function to insert a comment into the database
   async function insertCommentIntoDatabase(userId, postId, commentText) {
     return new Promise((resolve, reject) => {
       con.query('INSERT INTO comments (user_id, post_id, comment_text) VALUES (?, ?, ?)', [userId, postId, commentText], (error, result) => {
@@ -466,7 +449,7 @@ function isYouTubeLink(text) {
   }
 
   async function getPostsFromDatabaseWithLikeStatus(userId, page) {
-    const perPage = 10; // Adjust based on your pagination settings
+    const perPage = 10; 
     const offset = (page - 1) * perPage;
 
     return new Promise((resolve, reject) => {
@@ -491,7 +474,6 @@ function isYouTubeLink(text) {
     });
 }
 
-  // Start the server
   app.listen(3000, () => {
     console.log('Server started on port 3000');
   });
