@@ -19,9 +19,11 @@ const recaptcha = new Recaptcha(
   '6Le25nIoAAAAAFyEkChVXQoMoIR_bT9MRfl1CND6',
   '6Le25nIoAAAAAGCFxyqsZDxktD1yLRsCRXjaJG9D'
 );
+
+//omezení requestů 
 const limiter = RateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100, 
+  windowMs: 1 * 60 * 1000, //čas na maximální počet requestů (default 1 minuta)
+  max: 100, //maximální počet requestů na čas
 });
 
 app.use(limiter);
@@ -231,17 +233,6 @@ function isYouTubeLink(text) {
     }
   });
 
-  function getPostsFromDatabase() {
-    return new Promise((resolve, reject) => {
-      con.query('SELECT * FROM posts ORDER BY post_time DESC', (error, results, fields) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(results);
-        }
-      });
-    });
-  }
 
   app.get('/api/posts', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -260,24 +251,6 @@ function isYouTubeLink(text) {
     }
 });
 
-
-  async function getPostsFromDatabase(page) {
-    const perPage = 10; 
-    const offset = (page - 1) * perPage;
-
-    return new Promise((resolve, reject) => {
-      con.query('SELECT posts.*, users.username, media.media_url FROM posts JOIN users ON posts.user_id = users.id LEFT JOIN post_media ON posts.id = post_media.post_id LEFT JOIN media ON post_media.media_id = media.id ORDER BY post_time DESC LIMIT ? OFFSET ?',
-        [perPage, offset],
-        (error, results) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(results);
-          }
-        }
-      );
-    });
-  }
 
   app.get('/api/comments', async (req, res) => {
     const postId = req.query.postId;
