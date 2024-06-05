@@ -1,3 +1,4 @@
+//připojení knihoven použitých v projektu (např. express = framework, bcrypt = šifrování hesel)
 const express = require('express');
 const session = require('express-session');
 const flash = require('express-flash');
@@ -13,6 +14,7 @@ const path = require('path');
 const axios = require('axios');
 const multer = require('multer');
 
+//procesování dat pro konektor a nastavení frameworku na express + recaptcha klíč
 const app = express();
 const secretKey = process.env.MY_APP_SECRET_KEY;
 const recaptcha = new Recaptcha(
@@ -26,6 +28,7 @@ const limiter = RateLimit({
   max: 100, //maximální počet requestů na čas
 });
 
+//použití některých prvků knihoven
 app.use(limiter);
 app.use(flash());
 app.use(cors());
@@ -36,6 +39,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use('/uploads', express.static('uploads'));  
 
+//konektor, který procesuje data pro připojení z .env souboru
 const con = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -43,11 +47,13 @@ const con = mysql.createConnection({
   database: process.env.DB_NAME,
 });
 
+//error kdyby nefungoval konektor
   con.connect(function (err) {
     if (err) throw err;
     console.log('Connected to the database!');
   });
 
+  //nastavení session
   app.use(
     session({
       secret: secretKey,
@@ -57,6 +63,7 @@ const con = mysql.createConnection({
   );
   
 
+  //registrace
   app.post('/register.html', [
     recaptcha.middleware.verify,
     check('username').notEmpty(),
@@ -93,6 +100,8 @@ const con = mysql.createConnection({
     }
   });
 
+
+  //login
   app.post('/login', [recaptcha.middleware.verify], async (req, res) => {
     con.query('SELECT * FROM users WHERE username = ?', [req.body.username], async function (error, results, fields) {
       if (error) {
@@ -128,6 +137,7 @@ const con = mysql.createConnection({
     });
   });
 
+  //nastavení místa, kam se ukládají obrázky
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, 'uploads/');
@@ -137,14 +147,17 @@ const con = mysql.createConnection({
     },
   });
 
+  //nastavení proměnné pro nahravání s uložení
 const uploadWithStorage = multer({ storage: storage });
 
+//funkce pro detekci youtube linku
 function isYouTubeLink(text) {
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = text.match(youtubeRegex);
   return match ? match[0] : null;
 }
 
+//přidávání příspěvků
   app.post('/post', uploadWithStorage.single('media_url'), async (req, res) => {
     if (!req.session.userId) {
       req.flash('error', 'Please log in to post.');
@@ -193,6 +206,7 @@ function isYouTubeLink(text) {
       });
     };
   
+    //detekce youtube linku pomocí předem definované funkce
     const youtubeLink = isYouTubeLink(req.body.content);
     if (youtubeLink) {
       insertPostAndMedia(youtubeLink);
@@ -204,6 +218,7 @@ function isYouTubeLink(text) {
     }
   });
 
+  //načítaní homepage s příspěvky
   app.get('/homepage', async (req, res) => {
     try {
       const posts = await getPostsFromDatabaseWithLikeStatus();
@@ -234,6 +249,7 @@ function isYouTubeLink(text) {
   });
 
 
+  //získávání postů z db pro jejich načtení
   app.get('/api/posts', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const userId = req.session.userId;
@@ -251,7 +267,7 @@ function isYouTubeLink(text) {
     }
 });
 
-
+//získávání komentářů z db pro jejich načtení
   app.get('/api/comments', async (req, res) => {
     const postId = req.query.postId;
 
@@ -264,6 +280,7 @@ function isYouTubeLink(text) {
     }
   });
 
+  //funkce pro vybrání komentářů z db
   async function getCommentsFromDatabase(postId) {
     return new Promise((resolve, reject) => {
       con.query('SELECT comments.*, users.username FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ? ORDER BY comment_time', [postId], (error, results) => {
@@ -278,6 +295,7 @@ function isYouTubeLink(text) {
 
   let isLiking = {};
 
+  //funkce pro přidání like na příspěvek
   app.post('/like', (req, res) => {
     if (!req.session.userId) {
         return res.status(403).json({ success: false, message: 'Not logged in' });
@@ -317,6 +335,7 @@ function isYouTubeLink(text) {
 
   let isUnliking = {};
 
+   //funkce pro odebrání like z příspěvku
   app.post('/unlike', (req, res) => {
     if (!req.session.userId) {
         return res.status(403).json({ success: false, message: 'Not logged in' });
@@ -354,6 +373,7 @@ function isYouTubeLink(text) {
     });
 });
 
+//vložení komentářů do db
   app.post('/comment', async (req, res) => {
     if (!req.session.userId) {
       console.log('Current session user ID:', req.session.userId);
@@ -382,7 +402,7 @@ function isYouTubeLink(text) {
     });
   });
 
-
+//odhlášení
   app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -392,6 +412,7 @@ function isYouTubeLink(text) {
     });
   });
 
+  //další api/comments pro jejich vložení do db
   app.post('/api/comments', async (req, res) => {
     const userId = req.session.userId;
     const { postId, commentText } = req.body;
@@ -408,7 +429,7 @@ function isYouTubeLink(text) {
       res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
   });
-
+//funkce pro vložení komentářů do db
   async function insertCommentIntoDatabase(userId, postId, commentText) {
     return new Promise((resolve, reject) => {
       con.query('INSERT INTO comments (user_id, post_id, comment_text) VALUES (?, ?, ?)', [userId, postId, commentText], (error, result) => {
@@ -421,6 +442,7 @@ function isYouTubeLink(text) {
     });
   }
 
+  //funkce pro získání postů z db s like statusem
   async function getPostsFromDatabaseWithLikeStatus(userId, page) {
     const perPage = 10; 
     const offset = (page - 1) * perPage;
@@ -447,10 +469,12 @@ function isYouTubeLink(text) {
     });
 }
 
+//zapnutí web serveru na portu 3000
   app.listen(3000, () => {
     console.log('Server started on port 3000');
   });
 
+  //funkce pro redirecty na stránky
   app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
   });
