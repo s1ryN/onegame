@@ -62,9 +62,8 @@ const con = mysql.createConnection({
     })
   );
   
-
   //registrace
-  app.post('/register.html', [
+  app.post('/register', [
     recaptcha.middleware.verify,
     check('username').notEmpty(),
     check('email').isEmail(),
@@ -74,32 +73,32 @@ const con = mysql.createConnection({
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         req.flash('error', 'Validation error. Please check your input.');
-        return res.redirect('/register.html');
+        return res.redirect('/register');
       }
-
+  
       const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
+  
       const postData = {
         username: req.body.username,
         password: hashedPassword,
         email: req.body.email,
       };
-
+  
       con.query('INSERT INTO users SET ?', postData, function (error, results, fields) {
         if (error) {
           console.log('SQL Error: ', error);
           req.flash('error', 'Error occurred during registration.');
-          return res.redirect('/register.html');
+          return res.redirect('/register');
         } else {
-          res.redirect('/login.html');
+          req.flash('success', 'Registered successfully. Please log in.');
+          res.redirect('/login');
         }
       });
     } else {
       req.flash('error', 'CAPTCHA verification failed.');
-      return res.redirect('/register.html');
+      return res.redirect('/register');
     }
   });
-
 
   //login
   app.post('/login', [recaptcha.middleware.verify], async (req, res) => {
@@ -476,16 +475,16 @@ function isYouTubeLink(text) {
 
   //funkce pro redirecty na stránky
   app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.render('pages/index');
   });
 
-  app.get('/register.html', (req, res) => {
-    res.sendFile(__dirname + '/register.html');
+  app.get('/register', (req, res) => {
+    res.render('pages/register');
   });
-  app.get('/login.html', (req, res) => {
-    res.sendFile(__dirname + '/login.html');
+  app.get('/login', (req, res) => {
+    res.render('pages/login');
   });
 
-  app.get('/homepage.html', (req, res) => {
-    res.sendFile(__dirname + '/homepage.html');
+  app.get('/homepage', (req, res) => {
+    res.render('pages/homepage');
   });

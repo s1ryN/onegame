@@ -97,6 +97,11 @@ input[type="submit"] {
     margin-right: 20px;
 }
 
+.alert p {
+    font-family: "Space Mono", monospace;
+    font-size: 12px;
+}
+
 /*EN: Responsive design for most mobile devices, tablets or any other devices with a screen smaller than 1920x1080*/
 /*CZ: Responsivní design pro většinu mobilních zařízení, tabletu nebo jiných zařízení s menší obrazovkou než 1920x1080*/
 @media screen and (max-width: 768px) {

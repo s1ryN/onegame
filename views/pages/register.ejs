@@ -7,7 +7,7 @@
   připojení index.css, fontu Space Mono a Google recaptchy, nastavení title pro stránku-->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="ral.css">
+  <link rel="stylesheet" type="text/css" href="reglog.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <title>OneGame | Registration</title>
@@ -16,7 +16,7 @@
   <!--EN: Logo that redirects to index.html-->
   <!--CZ: Logo, které odkazuje na index.html-->
   <div class="logo">
-    <a href="index.html" class="linkage">
+    <a href="/" class="linkage">
       <img src="images/Onegame.png" alt="Logo" class="image-container" draggable="false" oncontextmenu="return true;">
     </a>
   </div>
@@ -24,7 +24,7 @@
   <!--CZ: Formulář pro registraci uživatele-->
   <div class="container">
     <div class="form">
-      <form method="post" id="form" action="http://localhost:3000/register.html">
+      <form method="post" id="form" action="http://localhost:3000/register">
       <label for="username"><strong>Username</strong></label>
       <input type="text" id="username" name="username" required autofocus>
       <small id="usernameCount" class="char-count">0/20</small>
@@ -36,13 +36,30 @@
       <input type="submit" value="Register" data-value="Register">
       </form>
     </div>
-      <!--EN: Redirect to login.html if the user does have an account-->
-      <!--CZ: Redirect na login.html pokud má uživatel účet -->
+    <!--EN: EJS for displaying error messages-->
+    <!--CZ: EJS na zobrazování errorů-->
+    <% if (messages.error) { %>
+      <div class="alert alert-danger">
+        <% messages.error.forEach(function(msg) { %>
+          <p><%= msg %></p>
+        <% }); %>
+      </div>
+    <% } %>
+  
+    <% if (messages.success) { %>
+      <div class="alert alert-success">
+        <% messages.success.forEach(function(msg) { %>
+          <p><%= msg %></p>
+        <% }); %>
+      </div>
+    <% } %>
+      <!--EN: Redirect to login if the user does have an account-->
+      <!--CZ: Redirect na login pokud má uživatel účet -->
     <div class="acc">
-      <p><small>Already have an account? <a href="login.html" class="link-style">Login</a></small></p>
+      <p><small>Already have an account? <a href="/login" class="link-style">Login</a></small></p>
     </div>
     <div class="tos">
-      <p><small>By signing up, you agree to the <a href="tos.html" class="link-style">Terms of Service</a> and <a href="pp.html" class="link-style">Privacy Policy</a>, including Cookie Use.</small></p>
+      <p><small>By signing up, you agree to the <a href="termsofservice.html" class="link-style">Terms of Service</a> and <a href="privacypolicy.html" class="link-style">Privacy Policy</a>, including Cookie Use.</small></p>
     </div>
   </div>
   <!--EN: Footer with link to more important info -->
