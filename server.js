@@ -13,6 +13,7 @@ const Recaptcha = require('express-recaptcha').RecaptchaV2;
 const path = require('path');
 const axios = require('axios');
 const multer = require('multer');
+const csrf = require('lusca').csrf;
 
 //procesování dat pro konektor a nastavení frameworku na express + recaptcha klíč
 const app = express();
@@ -37,7 +38,8 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use('/uploads', express.static('uploads'));  
+app.use('/uploads', express.static('uploads'));
+app.use(csrf());  
 
 //konektor, který procesuje data pro připojení z .env souboru
 const con = mysql.createConnection({

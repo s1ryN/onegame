@@ -15,6 +15,7 @@
     "express-recaptcha": "^5.1.0",
     "express-session": "^1.18.0",
     "express-validator": "^7.0.1",
+    "lusca": "^1.7.0",
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "nodemailer": "^6.9.10",
