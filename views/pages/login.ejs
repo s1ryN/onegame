@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!--EN: Default setup to UFT-8 and viewportu for responsive desing, 
-        connection of ral.css, Space Mono font and Google recaptcha, setup of the title for the page-->
-    <!--CZ: Základní nastavení na UTF-8 a viewportu pro responsivní design, 
-        připojení index.css, fontu Space Mono a Google recaptchy, nastavení title pro stránku-->
+    <!-- EN: Default setup to UTF-8 and viewport for responsive design, 
+         connection of index.css, Space Mono font, and Google reCAPTCHA, setup of the title for the page -->
+    <!-- CZ: Základní nastavení na UTF-8 a viewportu pro responsivní design, 
+         připojení index.css, fontu Space Mono a Google reCAPTCHA, nastavení title pro stránku -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="reglog.css">
@@ -13,15 +13,15 @@
     <title>OneGame | Login</title>
 </head>
 <body>
-    <!--EN: Logo that redirects to index.html-->
-    <!--CZ: Logo, které odkazuje na index.html-->
+    <!-- EN: Logo that redirects to index -->
+    <!-- CZ: Logo, které odkazuje na index -->
     <div class="logo">
-        <a href="index.html">
+        <a href="/">
           <img src="images/Onegame.png" alt="Logo" draggable="false">
         </a>
     </div>
-    <!--EN: Form for login of the user-->
-    <!--CZ: Formulář pro login uživatele-->
+    <!-- EN: Form for login of the user -->
+    <!-- CZ: Formulář pro login uživatele -->
     <div class="container">
         <form action="http://localhost:3000/login" method="post">
             <label for="username"><strong>Username</strong></label>
@@ -30,15 +30,32 @@
             <input type="password" id="password" name="password" required>
             <div class="g-recaptcha" data-sitekey="6Le25nIoAAAAAFyEkChVXQoMoIR_bT9MRfl1CND6"></div>
             <input type="submit" value="Login">   
-            <!--EN: Redirect to register.html if the user doesnt have an account-->
-            <!--CZ: Redirect na register.html pokud nemá uživatel účet -->         
+            <!-- EN: Redirect to register.html if the user doesn't have an account -->
+            <!-- CZ: Redirect na register.html pokud nemá uživatel účet -->         
             <div class="acc">
                 <p><small>Don't have an account? <a href="/register" class="link-style">Sign up</a></small></p>
             </div>
         </form>
     </div>
-    <!--EN: Footer with link to more important info -->
-    <!--CZ: Footer s odkazy na další důležité info-->
+    <!-- EN: EJS for displaying error messages -->
+    <!-- CZ: EJS na zobrazování errorů -->
+    <% if (messages.error && messages.error.length > 0) { %>
+        <div class="alert alert-danger">
+          <% messages.error.forEach(function(msg) { %>
+            <p><%= msg %></p>
+          <% }); %>
+        </div>
+    <% } %>
+    
+    <% if (messages.success && messages.success.length > 0) { %>
+        <div class="alert alert-success">
+          <% messages.success.forEach(function(msg) { %>
+            <p><%= msg %></p>
+          <% }); %>
+        </div>
+    <% } %>
+    <!-- EN: Footer with links to more important info -->
+    <!-- CZ: Footer s odkazy na další důležité info -->
     <footer class="footer">
         <small><a href="#" class="link-style">About</a></small>
         <small><a href="#" class="link-style">Terms of Service</a></small>
@@ -49,4 +66,3 @@
     </footer>
 </body>
 </html>
- 

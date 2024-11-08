@@ -13,7 +13,8 @@ const Recaptcha = require('express-recaptcha').RecaptchaV2;
 const path = require('path');
 const axios = require('axios');
 const multer = require('multer');
-const csrf = require('lusca').csrf;
+//TODO - security tool co chce req.session při redirectu
+//const csrf = require('lusca').csrf; 
 
 //procesování dat pro konektor a nastavení frameworku na express + recaptcha klíč
 const app = express();
@@ -39,7 +40,8 @@ app.use(express.static(__dirname));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use('/uploads', express.static('uploads'));
-app.use(csrf());  
+//reference nahoře - security tool
+//app.use(csrf());  
 
 //konektor, který procesuje data pro připojení z .env souboru
 const con = mysql.createConnection({
@@ -107,32 +109,30 @@ const con = mysql.createConnection({
     con.query('SELECT * FROM users WHERE username = ?', [req.body.username], async function (error, results, fields) {
       if (error) {
         console.log('error', 'Error occurred during login');
-        return res.redirect('/login.html');
+        req.flash('error', 'Error occurred during login');
+        return res.redirect('/login');
       } else {
         if (results.length > 0) {
           const user = results[0];
           const comparison = await bcrypt.compare(req.body.password, user.password);
           if (comparison) {
-            req.session.userId = user.id;
-            console.log('Current session user ID:', user.id);
-
             req.flash('success', 'Logged in successfully');
-
             const lastLoginTime = new Date();
             con.query('UPDATE users SET lastlogintime = ? WHERE id = ?', [lastLoginTime, user.id], function (error, updateResults, fields) {
               if (error) {
                 console.error('Error updating last login time:', error);
+                req.flash('error', 'Error updating last login time');
+                return res.redirect('/login');
               }
-
-              return res.redirect('/homepage.html');
+              return res.redirect('/homepage');
             });
           } else {
             req.flash('error', 'Username and password do not match');
-            return res.redirect('/login.html');
+            return res.redirect('/login');
           }
         } else {
           req.flash('error', 'Username does not exist');
-          return res.redirect('/login.html');
+          return res.redirect('/login');
         }
       }
     });

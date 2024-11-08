@@ -27,6 +27,9 @@
 
     <!--EN: Logos, which appear when you load/refresh the site-->
     <!--CZ: Loga, která se objeví při načtení/refreshnutí stránky-->
+    <div id="backToTop" onclick="scrollToTop()">
+        ↑
+      </div>
     <div class="logo2-container">
         <img src="images/Onegame2.png" alt="Logo2" class="logo2" draggable="false">
     </div>
@@ -228,6 +231,28 @@
             }, 17); //CZ: Čas intervalu //EN: Time of the interval
         };
     });
+</script>
+
+<script>
+    window.onscroll = function() {
+  scrollFunction();
+};
+
+function scrollFunction() {
+  var backToTopButton = document.getElementById("backToTop");
+  if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+    backToTopButton.style.display = "block";
+  } else {
+    backToTopButton.style.display = "none";
+  }
+}
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
 </script>
 </body>
 </html>
